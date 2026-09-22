@@ -995,57 +995,62 @@
     /* Donor Result Cards Grid */
     .donors-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
       gap: 24px;
     }
     .donor-card {
-      background: white;
+      background: #ffffff;
       border-radius: var(--radius-lg);
-      padding: 22px;
+      padding: 24px;
       border: 1px solid var(--border-color);
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
       transition: var(--transition);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 16px;
+      gap: 20px;
     }
     .donor-card:hover {
       transform: translateY(-4px);
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0 16px 32px -8px rgba(220, 38, 38, 0.12), 0 6px 12px -2px rgba(15, 23, 42, 0.04);
       border-color: #fca5a5;
     }
     .donor-card-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
+      gap: 14px;
     }
     .donor-profile {
       display: flex;
-      gap: 12px;
+      gap: 14px;
       align-items: center;
       min-width: 0;
+      flex: 1;
     }
     .donor-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
       background: linear-gradient(135deg, #1e293b, #0f172a);
       color: #f8fafc;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 800;
-      font-size: 0.92rem;
+      font-size: 1.05rem;
       letter-spacing: 0.5px;
       flex-shrink: 0;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
       border: 1px solid rgba(255, 255, 255, 0.15);
     }
+    .donor-info-col {
+      min-width: 0;
+      flex: 1;
+    }
     .donor-name {
-      font-size: 1.05rem;
-      font-weight: 700;
+      font-size: 1.08rem;
+      font-weight: 800;
       color: var(--secondary);
       display: flex;
       align-items: center;
@@ -1056,71 +1061,225 @@
     }
     .donor-verified {
       color: #0284c7;
-      font-size: 0.88rem;
+      font-size: 0.95rem;
       flex-shrink: 0;
     }
     .donor-location {
-      font-size: 0.82rem;
+      font-size: 0.86rem;
       color: var(--text-muted);
       display: flex;
       align-items: center;
-      gap: 4px;
-      margin-top: 2px;
+      gap: 5px;
+      margin-top: 3px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      font-weight: 600;
+    }
+    .donor-location i {
+      color: var(--primary);
+      font-size: 0.85rem;
+      flex-shrink: 0;
     }
     .blood-badge-lg {
       background: linear-gradient(135deg, #fef2f2, #fee2e2);
       color: var(--primary);
       font-weight: 800;
-      font-size: 1.12rem;
-      padding: 6px 13px;
+      font-size: 1.15rem;
+      padding: 8px 16px;
       border-radius: 12px;
       border: 1.5px solid #fecaca;
-      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.08);
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.08);
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
       flex-shrink: 0;
     }
     .donor-meta-tags {
       display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
+      gap: 8px;
       align-items: center;
+      margin-top: 14px;
+      flex-wrap: nowrap;
     }
     .meta-tag {
-      font-size: 0.76rem;
+      font-size: 0.78rem;
       font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 6px;
-      background: var(--bg-main);
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: #f8fafc;
       color: var(--text-muted);
       border: 1px solid var(--border-color);
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
+      line-height: 1.3;
+      white-space: nowrap;
     }
     .meta-tag.available {
-      background: #dcfce7;
-      color: #15803d;
-      border-color: #bbf7d0;
+      background: #ecfdf5;
+      color: #047857;
+      border-color: #a7f3d0;
+    }
+    .meta-tag.verified-badge {
+      background: #f0f9ff;
+      color: #0369a1;
+      border-color: #bae6fd;
     }
     .status-pulse-dot {
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #16a34a;
+      background: #10b981;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
       display: inline-block;
+      flex-shrink: 0;
     }
     .donor-actions {
       display: grid;
       grid-template-columns: 1fr 1.25fr;
-      gap: 10px;
-      padding-top: 14px;
+      gap: 12px;
+      padding-top: 16px;
       border-top: 1px solid #f1f5f9;
     }
+    .donor-action-btn {
+      height: 42px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: var(--transition);
+      cursor: pointer;
+      border: none;
+    }
+    .donor-action-btn.call-btn {
+      background: white;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+    .donor-action-btn.call-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+    .donor-action-btn.whatsapp-btn {
+      background: #16a34a;
+      color: white;
+      border: 1.5px solid #16a34a;
+      box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);
+    }
+    .donor-action-btn.whatsapp-btn:hover {
+      background: #15803d;
+      border-color: #15803d;
+      color: white;
+    }
+
+    /* Skeleton Loading Shimmer Animation */
+    .skeleton-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+      pointer-events: none;
+    }
+    .skeleton-shimmer {
+      background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+      background-size: 200% 100%;
+      animation: shimmerAnim 1.4s infinite linear;
+      border-radius: 6px;
+    }
+    @keyframes shimmerAnim {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .skeleton-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+    .skeleton-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      flex-shrink: 0;
+    }
+    .skeleton-info-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .skeleton-line-title {
+      height: 16px;
+      width: 60%;
+      border-radius: 6px;
+    }
+    .skeleton-line-sub {
+      height: 12px;
+      width: 80%;
+      border-radius: 4px;
+    }
+    .skeleton-badge {
+      width: 60px;
+      height: 38px;
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+    .skeleton-tags-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .skeleton-pill {
+      height: 24px;
+      width: 100px;
+      border-radius: 20px;
+    }
+    .skeleton-actions-row {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .skeleton-btn {
+      height: 42px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* Skeleton for SOS and Banks */
+    .skeleton-sos-card {
+      background: #ffffff;
+      border-radius: var(--radius-md);
+      padding: 22px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      pointer-events: none;
+    }
+    .skeleton-bank-card {
+      background: #ffffff;
+      border-radius: var(--radius-md);
+      padding: 24px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      pointer-events: none;
+    }
+
     .empty-state {
       grid-column: 1 / -1;
       text-align: center;
@@ -2721,32 +2880,40 @@
         console.log("⚡ Supabase Client initialized successfully.");
       }
     } catch (e) {
-      console.warn("Supabase initialization fallback:", e);
+      console.warn("Supabase initialization error:", e);
     }
 
-    // Initial Default Seed Data
-    const defaultDonors = [
-      { id: 1, name: "Dr. Rahul Verma", bloodGroup: "O-", city: "bangalore", area: "Indiranagar", phone: "+919876543210", available: true, distance: "1.8 km away", lastDonated: "4 months ago" },
-      { id: 2, name: "Priya Sundaram", bloodGroup: "A+", city: "bangalore", area: "Koramangala", phone: "+919845011223", available: true, distance: "3.2 km away", lastDonated: "5 months ago" },
-      { id: 3, name: "Amitabh Sen", bloodGroup: "B+", city: "mumbai", area: "Andheri West", phone: "+919731234567", available: true, distance: "2.1 km away", lastDonated: "6 months ago" },
-      { id: 4, name: "Sneha Patel", bloodGroup: "O+", city: "mumbai", area: "Bandra", phone: "+919920188765", available: true, distance: "4.5 km away", lastDonated: "3 months ago" },
-      { id: 5, name: "Kavita Nair", bloodGroup: "AB+", city: "chennai", area: "Adyar", phone: "+919447123456", available: true, distance: "1.2 km away", lastDonated: "7 months ago" },
-      { id: 6, name: "Rajesh Khanna", bloodGroup: "AB-", city: "delhi", area: "Connaught Place", phone: "+919811056789", available: true, distance: "5.0 km away", lastDonated: "4 months ago" }
+    // In-memory app state populated directly from Supabase
+    let appState = {
+      donors: [],
+      sosRequests: [],
+      bloodBanks: [],
+      supabaseConnected: false
+    };
+
+    // Seed definitions used for auto-populating empty Supabase tables
+    const initialSeedDonors = [
+      { name: "Dr. Rahul Verma", blood_group: "O-", city: "Bangalore", area: "Indiranagar", phone: "+91 98765 43210", is_verified: true, last_donation_date: "2024-11-15" },
+      { name: "Priya Sundaram", blood_group: "A+", city: "Bangalore", area: "Koramangala", phone: "+91 98450 11223", is_verified: true, last_donation_date: "2024-10-20" },
+      { name: "Amitabh Sen", blood_group: "B+", city: "Mumbai", area: "Andheri West", phone: "+91 97312 34567", is_verified: true, last_donation_date: "2024-09-05" },
+      { name: "Sneha Patel", blood_group: "O+", city: "Mumbai", area: "Bandra", phone: "+91 99201 88765", is_verified: true, last_donation_date: "2024-12-01" },
+      { name: "Kavita Nair", blood_group: "AB+", city: "Chennai", area: "Adyar", phone: "+91 94471 23456", is_verified: true, last_donation_date: "2024-08-18" },
+      { name: "Rajesh Khanna", blood_group: "AB-", city: "Delhi", area: "Connaught Place", phone: "+91 98110 56789", is_verified: true, last_donation_date: "2024-11-28" }
     ];
 
-    const defaultSosRequests = [
-      { id: 101, patientName: "Deepak Sharma", bloodGroup: "O-", units: 2, hospital: "Fortis Hospital, Bangalore", phone: "+919880012345", urgency: "Critical (Within 2 hrs)", time: "15 mins ago" },
-      { id: 102, patientName: "Ananya Gupta", bloodGroup: "AB-", units: 1, hospital: "Max Super Speciality, Delhi", phone: "+919810123456", urgency: "High (Within 6 hrs)", time: "42 mins ago" },
-      { id: 103, patientName: "Mohammed Rafi", bloodGroup: "B+", units: 3, hospital: "Lilavati Hospital, Mumbai", phone: "+919820067890", urgency: "Standard (Within 24 hrs)", time: "1 hr ago" }
+    const initialSeedSos = [
+      { patient_name: "Deepak Sharma", blood_group: "O-", units_needed: 2, hospital: "Fortis Hospital, Cunningham Rd", city: "Bangalore", phone: "+91 98800 12345", urgency: "Critical (Within 2 hrs)", status: "ACTIVE" },
+      { patient_name: "Ananya Gupta", blood_group: "AB-", units_needed: 1, hospital: "Max Super Speciality Hospital, Saket", city: "Delhi", phone: "+91 98101 23456", urgency: "High (Within 6 hrs)", status: "ACTIVE" },
+      { patient_name: "Mohammed Rafi", blood_group: "B+", units_needed: 3, hospital: "Lilavati Hospital & Research Centre", city: "Mumbai", phone: "+91 98200 67890", urgency: "Standard (Within 24 hrs)", status: "ACTIVE" }
     ];
 
-    const defaultBanks = [
-      { name: "Red Cross Central Blood Centre", city: "Chennai", address: "50, Montieth Rd, Egmore", phone: "+91 44 2855 4606", hours: "24/7 Open", stock: "High Stock Available", stockClass: "stock-high" },
-      { name: "Apollo Main Hospital Blood Bank", city: "Bangalore", address: "154/11, Bannerghatta Rd, Opp. IIMB", phone: "+91 80 2630 4050", hours: "24/7 Open", stock: "High Stock Available", stockClass: "stock-high" },
-      { name: "Jeevan Blood Bank & Research Institute", city: "Hyderabad", address: "Road No. 2, Banjara Hills", phone: "+91 40 2355 7788", hours: "24/7 Emergency Ready", stock: "Moderate Stock", stockClass: "stock-moderate" },
-      { name: "Rotary Blood Bank", city: "Delhi", address: "56-57, Tughlakabad Institutional Area", phone: "+91 11 2996 6699", hours: "24/7 Open", stock: "High Stock Available", stockClass: "stock-high" },
-      { name: "Tata Memorial Centre Blood Bank", city: "Mumbai", address: "Dr. E Borges Rd, Parel", phone: "+91 22 2417 7000", hours: "24/7 Emergency Ready", stock: "High Stock Available", stockClass: "stock-high" },
-      { name: "Manipal Hospital Blood Storage Unit", city: "Bangalore", address: "98, HAL Old Airport Rd, Kodihalli", phone: "+91 80 2502 4444", hours: "24/7 Open", stock: "Moderate Stock", stockClass: "stock-moderate" }
+    const initialSeedBanks = [
+      { name: "Red Cross Central Blood Bank", city: "Bangalore", area: "MG Road", phone: "080-22264875", timing: "24/7 Available", stock_status: "High Stock Available", is_verified: true },
+      { name: "Rashtrotthana Blood Centre", city: "Bangalore", area: "Gavipuram", phone: "080-26612789", timing: "24/7 Available", stock_status: "Moderate Stock", is_verified: true },
+      { name: "Apollo Main Hospital Blood Bank", city: "Bangalore", area: "Bannerghatta Rd", phone: "+91 80 2630 4050", timing: "24/7 Available", stock_status: "High Stock Available", is_verified: true },
+      { name: "Tata Memorial Centre Blood Bank", city: "Mumbai", area: "Parel", phone: "022-24177000", timing: "24/7 Available", stock_status: "High Stock Available", is_verified: true },
+      { name: "Rotary Blood Bank", city: "Delhi", area: "Tughlakabad", phone: "011-26052197", timing: "24/7 Available", stock_status: "High Stock Available", is_verified: true },
+      { name: "Red Cross Central Blood Centre", city: "Chennai", area: "Egmore", phone: "+91 44 2855 4606", timing: "24/7 Available", stock_status: "High Stock Available", is_verified: true }
     ];
 
     const compatibilityMap = {
@@ -2760,142 +2927,328 @@
       "AB-": { give: ["AB+", "AB-"], receive: ["AB-", "A-", "B-", "O-"] }
     };
 
-    // State Initialization
-    function initData() {
-      if (!localStorage.getItem("lifedrop_donors")) {
-        localStorage.setItem("lifedrop_donors", JSON.stringify(defaultDonors));
-      }
-      if (!localStorage.getItem("lifedrop_sos")) {
-        localStorage.setItem("lifedrop_sos", JSON.stringify(defaultSosRequests));
-      }
+    // Helper to map DB donor rows
+    function mapDbDonor(d) {
+      return {
+        id: d.id,
+        name: d.name,
+        bloodGroup: d.blood_group,
+        city: d.city || '',
+        area: d.area || '',
+        phone: d.phone || '',
+        available: true,
+        isVerified: d.is_verified !== false,
+        lastDonated: d.last_donation_date ? 'Recorded' : 'Eligible'
+      };
     }
 
-    function getDonors() {
-      return JSON.parse(localStorage.getItem("lifedrop_donors")) || defaultDonors;
+    // Helper to map DB SOS rows
+    function mapDbSos(r) {
+      return {
+        id: r.id,
+        patientName: r.patient_name,
+        bloodGroup: r.blood_group,
+        units: r.units_needed || 1,
+        hospital: r.hospital,
+        city: r.city || '',
+        phone: r.phone,
+        urgency: r.urgency || 'Critical (Within 2 hrs)',
+        time: r.created_at ? new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Live'
+      };
     }
 
-    function getSosRequests() {
-      return JSON.parse(localStorage.getItem("lifedrop_sos")) || defaultSosRequests;
+    // Helper to map DB Blood Bank rows
+    function mapDbBank(b) {
+      return {
+        id: b.id,
+        name: b.name,
+        city: b.city,
+        address: (b.area ? b.area + ', ' : '') + b.city,
+        phone: b.phone,
+        hours: b.timing || '24/7 Open',
+        stock: b.stock_status || 'High Stock Available',
+        stockClass: (b.stock_status && b.stock_status.toLowerCase().includes('moderate')) ? 'stock-moderate' : 'stock-high'
+      };
     }
 
     // =========================================================================
-    // ASYNC SUPABASE DATA SYNC & REALTIME
+    // SKELETON LOADING RENDERERS
     // =========================================================================
-    async function syncFromSupabase() {
-      if (!supabaseClient) return;
+    function renderDonorSkeletons(count = 6) {
+      const grid = document.getElementById("donorsGrid");
+      if (!grid) return;
+      grid.innerHTML = Array(count).fill(0).map(() => `
+        <div class="skeleton-card">
+          <div>
+            <div class="skeleton-header-row">
+              <div style="display: flex; gap: 14px; align-items: center; flex: 1;">
+                <div class="skeleton-avatar skeleton-shimmer"></div>
+                <div class="skeleton-info-col">
+                  <div class="skeleton-line-title skeleton-shimmer"></div>
+                  <div class="skeleton-line-sub skeleton-shimmer"></div>
+                </div>
+              </div>
+              <div class="skeleton-badge skeleton-shimmer"></div>
+            </div>
+            <div class="skeleton-tags-row">
+              <div class="skeleton-pill skeleton-shimmer"></div>
+              <div class="skeleton-pill skeleton-shimmer"></div>
+            </div>
+          </div>
+          <div class="skeleton-actions-row">
+            <div class="skeleton-btn skeleton-shimmer"></div>
+            <div class="skeleton-btn skeleton-shimmer"></div>
+          </div>
+        </div>
+      `).join('');
+    }
 
-      // 1. Fetch Donors from Supabase
+    function renderSosSkeletons(count = 3) {
+      const grid = document.getElementById("sosGrid");
+      if (!grid) return;
+      grid.innerHTML = Array(count).fill(0).map(() => `
+        <div class="skeleton-sos-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="skeleton-line-title skeleton-shimmer" style="width: 45%; height: 18px;"></div>
+            <div class="skeleton-pill skeleton-shimmer" style="width: 75px; height: 22px;"></div>
+          </div>
+          <div class="skeleton-line-title skeleton-shimmer" style="width: 60%; height: 24px; margin: 4px 0;"></div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div class="skeleton-line-sub skeleton-shimmer" style="width: 85%;"></div>
+            <div class="skeleton-line-sub skeleton-shimmer" style="width: 50%;"></div>
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 8px;">
+            <div class="skeleton-btn skeleton-shimmer" style="flex: 1; height: 40px;"></div>
+            <div class="skeleton-btn skeleton-shimmer" style="width: 45px; height: 40px;"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderBankSkeletons(count = 6) {
+      const grid = document.getElementById("banksGrid");
+      if (!grid) return;
+      grid.innerHTML = Array(count).fill(0).map(() => `
+        <div class="skeleton-bank-card">
+          <div class="skeleton-line-title skeleton-shimmer" style="width: 75%; height: 20px;"></div>
+          <div class="skeleton-line-sub skeleton-shimmer" style="width: 90%;"></div>
+          <div class="skeleton-line-sub skeleton-shimmer" style="width: 55%;"></div>
+          <div class="skeleton-line-sub skeleton-shimmer" style="width: 65%;"></div>
+          <div class="skeleton-pill skeleton-shimmer" style="width: 140px; height: 26px; margin-top: 4px;"></div>
+          <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <div class="skeleton-btn skeleton-shimmer" style="flex: 1; height: 40px;"></div>
+            <div class="skeleton-btn skeleton-shimmer" style="width: 55px; height: 40px;"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // =========================================================================
+    // LOAD ALL DATA DIRECTLY FROM SUPABASE & AUTO-SEED IF EMPTY
+    // =========================================================================
+    async function loadAllDataFromSupabase() {
+      // Show skeleton loaders immediately while fetching from Supabase
+      renderDonorSkeletons(6);
+      renderSosSkeletons(3);
+      renderBankSkeletons(6);
+
+      if (!supabaseClient) {
+        fallbackToLocalStorage();
+        return;
+      }
+
       try {
-        const { data: donorsData, error: donorsErr } = await supabaseClient
+        // 1. Check & Fetch Donors from Supabase
+        let { data: donorsData, error: donorsErr } = await supabaseClient
           .from('donors')
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (!donorsErr && donorsData && donorsData.length > 0) {
-          const mappedDonors = donorsData.map(d => ({
-            id: d.id,
-            name: d.name,
-            bloodGroup: d.blood_group,
-            city: d.city ? d.city.toLowerCase() : '',
-            area: d.area || '',
-            phone: d.phone,
-            available: true,
-            distance: 'Verified Donor',
-            lastDonated: d.last_donation_date ? 'Recorded' : 'Eligible'
-          }));
-          localStorage.setItem("lifedrop_donors", JSON.stringify(mappedDonors));
-          renderDonors(mappedDonors);
-          updateStatsCount();
+        if (!donorsErr && (!donorsData || donorsData.length === 0)) {
+          // Auto-seed Supabase donors table
+          console.log("⚡ Auto-seeding empty Supabase donors table...");
+          await supabaseClient.from('donors').insert(initialSeedDonors);
+          const res = await supabaseClient.from('donors').select('*').order('created_at', { ascending: false });
+          donorsData = res.data;
         }
-      } catch (err) {
-        console.warn("Supabase donors sync:", err);
-      }
 
-      // 2. Fetch SOS Requests from Supabase
-      try {
-        const { data: sosData, error: sosErr } = await supabaseClient
+        if (donorsData && donorsData.length > 0) {
+          appState.donors = donorsData.map(mapDbDonor);
+          localStorage.setItem("lifedrop_donors", JSON.stringify(appState.donors));
+        }
+
+        // 2. Check & Fetch SOS Requests from Supabase
+        let { data: sosData, error: sosErr } = await supabaseClient
           .from('sos_requests')
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (!sosErr && sosData && sosData.length > 0) {
-          const mappedSos = sosData.map(r => ({
-            id: r.id,
-            patientName: r.patient_name,
-            bloodGroup: r.blood_group,
-            units: r.units_needed || 1,
-            hospital: r.hospital,
-            phone: r.phone,
-            urgency: r.urgency || 'Critical (Within 2 hrs)',
-            time: r.created_at ? new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Live'
-          }));
-          localStorage.setItem("lifedrop_sos", JSON.stringify(mappedSos));
-          renderSosRequests();
+        if (!sosErr && (!sosData || sosData.length === 0)) {
+          // Auto-seed Supabase sos table
+          console.log("⚡ Auto-seeding empty Supabase sos_requests table...");
+          await supabaseClient.from('sos_requests').insert(initialSeedSos);
+          const res = await supabaseClient.from('sos_requests').select('*').order('created_at', { ascending: false });
+          sosData = res.data;
         }
-      } catch (err) {
-        console.warn("Supabase SOS sync:", err);
-      }
 
-      // 3. Fetch Blood Banks from Supabase
-      try {
-        const { data: banksData, error: banksErr } = await supabaseClient
+        if (sosData && sosData.length > 0) {
+          appState.sosRequests = sosData.map(mapDbSos);
+          localStorage.setItem("lifedrop_sos", JSON.stringify(appState.sosRequests));
+        }
+
+        // 3. Check & Fetch Blood Banks from Supabase
+        let { data: banksData, error: banksErr } = await supabaseClient
           .from('blood_banks')
           .select('*')
           .order('created_at', { ascending: true });
 
-        if (!banksErr && banksData && banksData.length > 0) {
-          const mappedBanks = banksData.map(b => ({
-            name: b.name,
-            city: b.city,
-            address: (b.area ? b.area + ', ' : '') + b.city,
-            phone: b.phone,
-            hours: b.timing || '24/7 Available',
-            stock: b.stock_status || 'High Stock Available',
-            stockClass: (b.stock_status && b.stock_status.toLowerCase().includes('moderate')) ? 'stock-moderate' : 'stock-high'
-          }));
-          renderBanks(mappedBanks);
+        if (!banksErr && (!banksData || banksData.length === 0)) {
+          // Auto-seed Supabase blood_banks table
+          console.log("⚡ Auto-seeding empty Supabase blood_banks table...");
+          await supabaseClient.from('blood_banks').insert(initialSeedBanks);
+          const res = await supabaseClient.from('blood_banks').select('*').order('created_at', { ascending: true });
+          banksData = res.data;
         }
+
+        if (banksData && banksData.length > 0) {
+          appState.bloodBanks = banksData.map(mapDbBank);
+        }
+
+        appState.supabaseConnected = true;
+        console.log("✅ All data successfully synced live from Supabase database.");
+
       } catch (err) {
-        console.warn("Supabase blood banks sync:", err);
+        console.warn("Supabase fetch exception, using cached state:", err);
+        fallbackToLocalStorage();
       }
 
-      // 4. Update Map Markers with fresh data
+      // Render all views with Supabase live data
+      renderDonors(appState.donors);
+      renderSosRequests();
+      renderBanks(appState.bloodBanks);
+      updateStatsCount();
       refreshMapMarkers();
 
-      // 5. Setup Realtime Listener
+      // Setup Realtime Live Listeners
       setupSupabaseRealtime();
+    }
+
+    function fallbackToLocalStorage() {
+      const cachedDonors = localStorage.getItem("lifedrop_donors");
+      const cachedSos = localStorage.getItem("lifedrop_sos");
+      
+      appState.donors = cachedDonors ? JSON.parse(cachedDonors) : initialSeedDonors.map((d, i) => ({
+        id: i + 1,
+        name: d.name,
+        bloodGroup: d.blood_group,
+        city: d.city,
+        area: d.area,
+        phone: d.phone,
+        available: true,
+        isVerified: true
+      }));
+
+      appState.sosRequests = cachedSos ? JSON.parse(cachedSos) : initialSeedSos.map((s, i) => ({
+        id: i + 101,
+        patientName: s.patient_name,
+        bloodGroup: s.blood_group,
+        units: s.units_needed,
+        hospital: s.hospital,
+        city: s.city,
+        phone: s.phone,
+        urgency: s.urgency,
+        time: "Live"
+      }));
+
+      appState.bloodBanks = initialSeedBanks.map(mapDbBank);
+
+      renderDonors(appState.donors);
+      renderSosRequests();
+      renderBanks(appState.bloodBanks);
+      updateStatsCount();
+      refreshMapMarkers();
     }
 
     function setupSupabaseRealtime() {
       if (!supabaseClient) return;
       try {
+        // Realtime SOS insertions
         supabaseClient
           .channel('public:sos_requests')
           .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sos_requests' }, payload => {
             const r = payload.new;
-            const newSosItem = {
-              id: r.id,
-              patientName: r.patient_name,
-              bloodGroup: r.blood_group,
-              units: r.units_needed || 1,
-              hospital: r.hospital,
-              phone: r.phone,
-              urgency: r.urgency || 'Critical (Within 2 hrs)',
-              time: 'Just now'
-            };
-            const currentList = getSosRequests();
-            if (!currentList.some(item => item.id === r.id)) {
-              currentList.unshift(newSosItem);
-              localStorage.setItem("lifedrop_sos", JSON.stringify(currentList));
+            const newSosItem = mapDbSos(r);
+            if (!appState.sosRequests.some(item => item.id === r.id)) {
+              appState.sosRequests.unshift(newSosItem);
+              localStorage.setItem("lifedrop_sos", JSON.stringify(appState.sosRequests));
               renderSosRequests();
               refreshMapMarkers();
               showToast(`🚨 Live Emergency Broadcast: ${r.blood_group} urgently required for ${r.patient_name}!`, 'warning');
             }
           })
           .subscribe();
+
+        // Realtime Donor registrations
+        supabaseClient
+          .channel('public:donors')
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'donors' }, payload => {
+            const d = payload.new;
+            const newDonorItem = mapDbDonor(d);
+            if (!appState.donors.some(item => item.id === d.id)) {
+              appState.donors.unshift(newDonorItem);
+              localStorage.setItem("lifedrop_donors", JSON.stringify(appState.donors));
+              renderDonors(appState.donors);
+              updateStatsCount();
+              refreshMapMarkers();
+              showToast(`🩸 New voluntary donor registered: ${d.name} (${d.blood_group})`, 'info');
+            }
+          })
+          .subscribe();
+
       } catch (err) {
-        console.warn("Realtime SOS channel:", err);
+        console.warn("Realtime subscription exception:", err);
       }
+    }
+
+    // Search Handlers (Directly Queries Supabase Live Database with Skeleton feedback)
+    async function handleSearch(e) {
+      if (e) e.preventDefault();
+      const group = document.getElementById("searchGroup").value.trim();
+      const city = document.getElementById("searchLocation").value.trim().toLowerCase();
+
+      // Show skeleton cards during search
+      renderDonorSkeletons(4);
+
+      if (supabaseClient) {
+        try {
+          let query = supabaseClient.from('donors').select('*');
+          if (group) query = query.eq('blood_group', group);
+          if (city) {
+            query = query.or(`city.ilike.%${city}%,area.ilike.%${city}%`);
+          }
+          const { data, error } = await query.order('created_at', { ascending: false });
+
+          if (!error && data) {
+            const mapped = data.map(mapDbDonor);
+            renderDonors(mapped);
+            showToast(`Found ${mapped.length} matching donors.`, 'info');
+            return;
+          }
+        } catch (err) {
+          console.warn("Supabase search exception, falling back to local:", err);
+        }
+      }
+
+      // Memory fallback
+      let donors = appState.donors;
+      let filtered = donors.filter(d => {
+        const matchesGroup = !group || d.bloodGroup.toUpperCase() === group.toUpperCase();
+        const matchesCity = !city || (d.city && d.city.toLowerCase().includes(city)) || (d.area && d.area.toLowerCase().includes(city));
+        return matchesGroup && matchesCity;
+      });
+
+      renderDonors(filtered);
+      showToast(`Showing ${filtered.length} matching donors.`, 'info');
     }
 
     // =========================================================================
@@ -2981,9 +3334,8 @@
       let bankCount = 0;
       let donorCount = 0;
 
-      // 1. Plot SOS Markers
-      const sosList = getSosRequests();
-      sosList.forEach((sos, idx) => {
+      // 1. Plot SOS Markers from appState
+      appState.sosRequests.forEach((sos, idx) => {
         const coords = getCoordinatesForCity(sos.hospital || sos.city || 'Bangalore', idx + 1);
         const sosIcon = L.divIcon({
           className: 'custom-leaflet-icon',
@@ -3011,8 +3363,9 @@
         sosCount++;
       });
 
-      // 2. Plot Blood Banks
-      defaultBanks.forEach((bank, idx) => {
+      // 2. Plot Blood Banks from appState
+      const banksList = appState.bloodBanks.length > 0 ? appState.bloodBanks : initialSeedBanks.map(mapDbBank);
+      banksList.forEach((bank, idx) => {
         const coords = getCoordinatesForCity(bank.city, idx + 10);
         const bankIcon = L.divIcon({
           className: 'custom-leaflet-icon',
@@ -3027,7 +3380,7 @@
             <span class="map-popup-badge" style="background:#0284c7;">Verified</span>
           </div>
           <div class="map-popup-body">
-            <div><strong>Location:</strong> ${bank.address}, ${bank.city}</div>
+            <div><strong>Location:</strong> ${bank.address}</div>
             <div><strong>Timing:</strong> ${bank.hours}</div>
             <div><strong>Stock:</strong> <span style="color:#16a34a; font-weight:700;">${bank.stock}</span></div>
           </div>
@@ -3041,9 +3394,8 @@
         bankCount++;
       });
 
-      // 3. Plot Donors
-      const donorsList = getDonors();
-      donorsList.forEach((donor, idx) => {
+      // 3. Plot Donors from appState
+      appState.donors.forEach((donor, idx) => {
         const coords = getCoordinatesForCity(donor.city, idx + 20);
         const donorIcon = L.divIcon({
           className: 'custom-leaflet-icon',
@@ -3236,6 +3588,8 @@
 
     function renderDonors(list) {
       const grid = document.getElementById("donorsGrid");
+      if (!grid) return;
+
       if (!list || list.length === 0) {
         grid.innerHTML = `
           <div class="empty-state">
@@ -3248,7 +3602,9 @@
 
       grid.innerHTML = list.map(donor => {
         const initials = getDonorInitials(donor.name);
-        const locationText = (donor.area ? donor.area + ', ' : '') + (donor.city ? (donor.city.charAt(0).toUpperCase() + donor.city.slice(1)) : 'Local Area');
+        const areaPart = (donor.area || '').trim();
+        const cityPart = donor.city ? (donor.city.charAt(0).toUpperCase() + donor.city.slice(1).trim()) : 'Local Area';
+        const locationText = areaPart ? `${areaPart}, ${cityPart}` : cityPart;
         
         return `
         <div class="donor-card">
@@ -3256,13 +3612,13 @@
             <div class="donor-card-top">
               <div class="donor-profile">
                 <div class="donor-avatar" title="${donor.name}">${initials}</div>
-                <div>
-                  <div class="donor-name">
+                <div class="donor-info-col">
+                  <div class="donor-name" title="${donor.name}">
                     <span>${donor.name}</span>
                     <i class="fa-solid fa-circle-check donor-verified" title="Verified Voluntary Donor"></i>
                   </div>
-                  <div class="donor-location">
-                    <i class="fa-solid fa-location-dot" style="color:var(--primary);"></i>
+                  <div class="donor-location" title="${locationText}">
+                    <i class="fa-solid fa-location-dot"></i>
                     <span>${locationText}</span>
                   </div>
                 </div>
@@ -3277,20 +3633,17 @@
               <span class="meta-tag available">
                 <span class="status-pulse-dot"></span> Available Now
               </span>
-              <span class="meta-tag">
-                <i class="fa-solid fa-route"></i> ${donor.distance || 'Verified Match'}
-              </span>
-              <span class="meta-tag">
-                <i class="fa-solid fa-shield-halved"></i> Active
+              <span class="meta-tag verified-badge">
+                <i class="fa-solid fa-shield-check" style="color: #0284c7;"></i> Verified Donor
               </span>
             </div>
           </div>
 
           <div class="donor-actions">
-            <a href="tel:${donor.phone}" class="btn-outline-red" style="justify-content: center; padding: 10px 14px;">
+            <a href="tel:${donor.phone}" class="donor-action-btn call-btn">
               <i class="fa-solid fa-phone"></i> Call
             </a>
-            <a href="https://wa.me/${donor.phone.replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(donor.name)},%20I%20found%20your%20profile%20on%20LifeDrop.%20We%20urgently%20need%20${encodeURIComponent(donor.bloodGroup)}%20blood." target="_blank" class="btn-whatsapp" style="justify-content: center; padding: 10px 14px;">
+            <a href="https://wa.me/${(donor.phone || '').replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(donor.name)},%20I%20found%20your%20verified%20profile%20on%20LifeDrop.%20We%20urgently%20need%20${encodeURIComponent(donor.bloodGroup)}%20blood." target="_blank" class="donor-action-btn whatsapp-btn">
               <i class="fa-brands fa-whatsapp"></i> WhatsApp
             </a>
           </div>
@@ -3301,8 +3654,18 @@
 
     function renderSosRequests() {
       const grid = document.getElementById("sosGrid");
-      const list = getSosRequests();
+      const list = appState.sosRequests;
       if (!grid) return;
+
+      if (!list || list.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <i class="fa-solid fa-heart-circle-check" style="color: #10b981;"></i>
+            <h3>No Active SOS Requests</h3>
+            <p style="color: var(--text-muted); margin-top: 6px;">All emergency requests are currently fulfilled.</p>
+          </div>`;
+        return;
+      }
 
       grid.innerHTML = list.map(req => {
         let badgeClass = "sos-badge-standard";
@@ -3347,7 +3710,7 @@
     function renderBanks(customList) {
       const grid = document.getElementById("banksGrid");
       if (!grid) return;
-      const list = customList || defaultBanks;
+      const list = (customList && customList.length > 0) ? customList : (appState.bloodBanks.length > 0 ? appState.bloodBanks : initialSeedBanks.map(mapDbBank));
 
       grid.innerHTML = list.map(bank => `
         <div class="bank-card">
@@ -3357,7 +3720,7 @@
             </div>
             <div class="bank-info-item">
               <i class="fa-solid fa-location-dot"></i>
-              <span>${bank.address}, ${bank.city}</span>
+              <span>${bank.address}</span>
             </div>
             <div class="bank-info-item">
               <i class="fa-solid fa-clock"></i>
@@ -3382,22 +3745,7 @@
       `).join('');
     }
 
-    // Search Handlers
-    function handleSearch(e) {
-      if (e) e.preventDefault();
-      const group = document.getElementById("searchGroup").value.trim();
-      const city = document.getElementById("searchLocation").value.trim().toLowerCase();
 
-      let donors = getDonors();
-      let filtered = donors.filter(d => {
-        const matchesGroup = !group || d.bloodGroup.toUpperCase() === group.toUpperCase();
-        const matchesCity = !city || (d.city && d.city.toLowerCase().includes(city)) || (d.area && d.area.toLowerCase().includes(city));
-        return matchesGroup && matchesCity;
-      });
-
-      renderDonors(filtered);
-      showToast(`Showing ${filtered.length} matching donors.`, 'info');
-    }
 
     function handleHeroSearch(e) {
       e.preventDefault();
@@ -3446,9 +3794,8 @@
             gpsBtn.classList.add("btn-primary");
             gpsBtn.classList.remove("btn-secondary");
             
-            showToast("GPS position acquired! Showing nearest verified donors within 5 km.", "success");
-            const donors = getDonors();
-            renderDonors(donors);
+            showToast("GPS position acquired! Showing nearest verified donors.", "success");
+            renderDonors(appState.donors);
             gpsBtn.disabled = false;
           },
           (err) => {
@@ -3471,7 +3818,7 @@
       const name = document.getElementById("regName").value.trim();
       const bloodGroup = document.getElementById("regBloodGroup").value;
       const phone = document.getElementById("regPhone").value.trim();
-      const city = document.getElementById("regCity").value.trim().toLowerCase();
+      const city = document.getElementById("regCity").value.trim();
       const area = document.getElementById("regArea").value.trim();
       const lastDonation = document.getElementById("regLastDonation").value;
 
@@ -3481,24 +3828,23 @@
         return;
       }
 
-      const newDonor = {
+      const newDonorObj = {
         id: Date.now(),
         name: name,
         bloodGroup: bloodGroup,
         city: city,
-        area: area || "Central Area",
+        area: area || "Local Area",
         phone: phone,
         available: true,
-        distance: "0.8 km away",
+        isVerified: true,
         lastDonated: lastDonation ? "Recent" : "Eligible"
       };
 
-      const donors = getDonors();
-      donors.unshift(newDonor);
-      localStorage.setItem("lifedrop_donors", JSON.stringify(donors));
+      appState.donors.unshift(newDonorObj);
+      localStorage.setItem("lifedrop_donors", JSON.stringify(appState.donors));
 
       updateStatsCount();
-      renderDonors(donors);
+      renderDonors(appState.donors);
       refreshMapMarkers();
       document.getElementById("registerForm").reset();
       
@@ -3507,7 +3853,7 @@
       if (regContent) regContent.innerHTML = '<span class="selected-placeholder">Select Blood Group...</span>';
       document.getElementById("regBloodGroup").value = "";
 
-      // Async write to Supabase
+      // Direct write to Supabase
       if (supabaseClient) {
         try {
           const { error } = await supabaseClient.from('donors').insert([{
@@ -3520,13 +3866,13 @@
             is_verified: true
           }]);
           if (error) console.warn("Supabase donor save error:", error);
-          else console.log("✅ Donor synced to Supabase database.");
+          else console.log("✅ Donor synced live to Supabase database.");
         } catch (err) {
           console.warn("Supabase donor exception:", err);
         }
       }
 
-      showToast(`Thank you, ${name}! You are registered as an active donor.`, "success");
+      showToast(`Thank you, ${name}! You are registered in the Supabase live network.`, "success");
 
       const findSection = document.getElementById("find");
       findSection.scrollIntoView({ behavior: "smooth" });
@@ -3561,16 +3907,15 @@
         id: Date.now(),
         patientName,
         bloodGroup,
-        units,
+        units: parseInt(units) || 1,
         hospital,
         phone,
         urgency,
         time: "Just now"
       };
 
-      const requests = getSosRequests();
-      requests.unshift(newRequest);
-      localStorage.setItem("lifedrop_sos", JSON.stringify(requests));
+      appState.sosRequests.unshift(newRequest);
+      localStorage.setItem("lifedrop_sos", JSON.stringify(appState.sosRequests));
 
       renderSosRequests();
       refreshMapMarkers();
@@ -3582,7 +3927,7 @@
       if (sosContent) sosContent.innerHTML = '<span class="selected-placeholder">Choose Blood...</span>';
       document.getElementById("sosBloodGroup").value = "";
 
-      // Async write to Supabase
+      // Direct write to Supabase
       if (supabaseClient) {
         try {
           const { error } = await supabaseClient.from('sos_requests').insert([{
@@ -3590,19 +3935,19 @@
             blood_group: bloodGroup,
             units_needed: parseInt(units) || 1,
             hospital: hospital,
-            city: hospital.includes(',') ? hospital.split(',').pop().trim() : 'Local',
+            city: hospital.includes(',') ? hospital.split(',').pop().trim() : 'Bangalore',
             phone: phone,
             urgency: urgency,
             status: 'ACTIVE'
           }]);
           if (error) console.warn("Supabase SOS save error:", error);
-          else console.log("✅ Emergency SOS broadcasted to Supabase database.");
+          else console.log("✅ Emergency SOS broadcasted live to Supabase database.");
         } catch (err) {
           console.warn("Supabase SOS exception:", err);
         }
       }
 
-      showToast("Emergency request broadcasted to all nearby registered donors!", "success");
+      showToast("Emergency request broadcasted to Supabase live network!", "success");
 
       const sosSection = document.getElementById("sos");
       sosSection.scrollIntoView({ behavior: "smooth" });
@@ -3626,16 +3971,16 @@
 
     // Stats Counter
     function updateStatsCount() {
-      const donors = getDonors();
       const statElem = document.getElementById("statDonors");
       if (statElem) {
-        statElem.textContent = `${(3450 + (donors.length - defaultDonors.length)).toLocaleString()}+`;
+        statElem.textContent = `${(3450 + appState.donors.length).toLocaleString()}+`;
       }
     }
 
     // Helpers
     function showToast(message, type = 'info') {
       const container = document.getElementById("toastContainer");
+      if (!container) return;
       const toast = document.createElement("div");
       toast.className = `toast ${type}`;
       
@@ -3669,18 +4014,13 @@
 
     // Lifecycle Initialization
     document.addEventListener("DOMContentLoaded", () => {
-      initData();
-      renderDonors(getDonors());
-      renderSosRequests();
-      renderBanks();
       selectCompatibility("O+");
-      updateStatsCount();
 
       // Initialize Live Geospatial Map
       initLiveMap();
 
-      // Trigger Supabase Cloud Sync
-      syncFromSupabase();
+      // Fetch all data live from Supabase & Auto-seed
+      loadAllDataFromSupabase();
 
       const mobileBtn = document.getElementById("mobileMenuBtn");
       const navLinks = document.getElementById("navLinks");
