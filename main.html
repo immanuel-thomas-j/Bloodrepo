@@ -1,0 +1,3657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LifeDrop - Emergency Blood Donor & Blood Bank Network</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Leaflet Interactive Maps CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    :root {
+      --primary: #dc2626;
+      --primary-dark: #991b1b;
+      --primary-light: #fee2e2;
+      --primary-50: #fef2f2;
+      --primary-glow: rgba(220, 38, 38, 0.25);
+      --secondary: #0f172a;
+      --secondary-light: #1e293b;
+      --accent: #e11d48;
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+      --border-color: #e2e8f0;
+      --border-hover: #cbd5e1;
+      --border-focus: #dc2626;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --critical: #ef4444;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+      --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 8px 20px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.04);
+      --shadow-lg: 0 20px 30px -8px rgba(220, 38, 38, 0.14), 0 10px 15px -3px rgba(15, 23, 42, 0.05);
+      --shadow-xl: 0 25px 50px -12px rgba(15, 23, 42, 0.18);
+      --transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 transparent;
+    }
+
+    /* Modern Custom Scrollbar (removes native browser arrow buttons) */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-button {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      color: var(--secondary);
+      line-height: 1.25;
+    }
+
+    /* Top Emergency Alert Bar */
+    .emergency-banner {
+      background: linear-gradient(90deg, #881337 0%, #b91c1c 45%, #dc2626 100%);
+      color: #fff;
+      padding: 9px 24px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1001;
+      box-shadow: 0 2px 8px rgba(185, 28, 28, 0.25);
+    }
+    .banner-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .pulse-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #fef08a;
+      box-shadow: 0 0 0 0 rgba(254, 240, 138, 0.8);
+      animation: bannerPulse 1.6s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes bannerPulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(254, 240, 138, 0.8); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(254, 240, 138, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(254, 240, 138, 0); }
+    }
+    .banner-cta {
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: white;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      text-decoration: none;
+      font-weight: 700;
+      transition: var(--transition);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .banner-cta:hover {
+      background: white;
+      color: var(--primary-dark);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Navbar */
+    .navbar {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      padding: 14px 6%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: var(--transition);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--secondary);
+    }
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      color: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+    .logo-text {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--secondary);
+    }
+    .logo-text span {
+      color: var(--primary);
+    }
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 26px;
+      align-items: center;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 0.94rem;
+      transition: var(--transition);
+      position: relative;
+      padding: 6px 2px;
+    }
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--primary);
+    }
+    .nav-links a.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2.5px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-btn-sos {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px var(--primary-glow);
+      transition: var(--transition);
+      border: none;
+      cursor: pointer;
+    }
+    .nav-btn-sos:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+    }
+    .mobile-menu-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      font-size: 1.4rem;
+      color: var(--secondary);
+      cursor: pointer;
+      padding: 6px;
+    }
+
+    /* Hero Section */
+    .hero {
+      position: relative;
+      padding: 65px 6% 85px;
+      background: radial-gradient(circle at 85% 15%, #ffe4e6 0%, #f8fafc 65%);
+      overflow: visible;
+      z-index: 20;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 550px;
+      height: 550px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.07) 0%, transparent 70%);
+      top: -120px;
+      right: -80px;
+      pointer-events: none;
+      max-width: 100vw;
+    }
+    .hero-container {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 45px;
+      align-items: center;
+      position: relative;
+      z-index: 21;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 7px 16px;
+      border-radius: 30px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      border: 1px solid #fecaca;
+    }
+    .hero-title {
+      font-size: 3.3rem;
+      line-height: 1.14;
+      margin-bottom: 18px;
+      letter-spacing: -1px;
+    }
+    .hero-title .highlight {
+      background: linear-gradient(135deg, #dc2626, #e11d48);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-desc {
+      font-size: 1.12rem;
+      color: var(--text-muted);
+      margin-bottom: 30px;
+      max-width: 520px;
+    }
+    .hero-cta-group {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: white;
+      padding: 13px 26px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 0.98rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 14px var(--primary-glow);
+      transition: var(--transition);
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(220, 38, 38, 0.35);
+      color: white;
+    }
+    .btn-secondary {
+      background: white;
+      color: var(--secondary);
+      border: 1.5px solid var(--border-color);
+      padding: 13px 24px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 0.98rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    .btn-secondary:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: #fff5f5;
+      transform: translateY(-2px);
+    }
+    .btn-outline-red {
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    .btn-outline-red:hover {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-whatsapp {
+      background: #16a34a;
+      color: white;
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+      border: none;
+    }
+    .btn-whatsapp:hover {
+      background: #15803d;
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    /* Form Elements & Input Wrappers */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .form-group label {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .label-hint {
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    .input-icon {
+      position: absolute;
+      left: 15px;
+      color: #94a3b8;
+      font-size: 1rem;
+      pointer-events: none;
+      transition: var(--transition);
+      z-index: 2;
+    }
+    .input-wrapper:focus-within .input-icon {
+      color: var(--primary);
+    }
+    .custom-input {
+      width: 100%;
+      height: 48px;
+      padding: 0 16px 0 44px;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.94rem;
+      font-weight: 500;
+      color: var(--text-main);
+      background-color: #ffffff;
+      transition: var(--transition);
+      outline: none;
+      box-shadow: var(--shadow-xs);
+    }
+    .custom-input.no-icon {
+      padding-left: 16px;
+    }
+    .custom-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3.5px var(--primary-light);
+      background-color: #ffffff;
+    }
+
+    /* ==========================================================================
+       RICH CUSTOM DROPDOWN COMPONENT (NO NATIVE SELECTS)
+       ========================================================================== */
+    .custom-dropdown-container {
+      position: relative;
+      width: 100%;
+      user-select: none;
+      z-index: 10;
+    }
+    .dropdown-trigger {
+      width: 100%;
+      height: 48px;
+      background: white;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0 14px 0 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow-xs);
+    }
+    .dropdown-trigger.no-icon {
+      padding-left: 14px;
+    }
+    .dropdown-trigger:hover {
+      border-color: var(--border-hover);
+      background: #fafafa;
+    }
+    .custom-dropdown-container.open {
+      z-index: 2500;
+    }
+    .custom-dropdown-container.open .dropdown-trigger,
+    .dropdown-trigger:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3.5px var(--primary-light);
+      background: white;
+    }
+    .dropdown-selected-content {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .selected-badge {
+      background: #fee2e2;
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 6px;
+      border: 1px solid #fecaca;
+    }
+    .selected-text {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .selected-placeholder {
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: #94a3b8;
+    }
+    .dropdown-chevron {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      transition: transform 0.25s ease;
+    }
+    .custom-dropdown-container.open .dropdown-chevron {
+      transform: rotate(180deg);
+      color: var(--primary);
+    }
+
+    /* Custom Dropdown Menu Panel */
+    .dropdown-panel {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 20px 35px -5px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.05);
+      z-index: 2600;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px) scale(0.98);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 290px;
+      overflow-y: auto;
+      padding: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 #f8fafc;
+    }
+    .dropdown-panel::-webkit-scrollbar {
+      width: 6px;
+    }
+    .dropdown-panel::-webkit-scrollbar-track {
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+    .dropdown-panel::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 8px;
+    }
+    .dropdown-panel::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .custom-dropdown-container.open .dropdown-panel {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+    .dropdown-group-header {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 800;
+      color: var(--text-muted);
+      padding: 8px 10px 4px;
+      margin-top: 4px;
+    }
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: 2px;
+    }
+    .dropdown-item:hover {
+      background: #f8fafc;
+      color: var(--primary);
+    }
+    .dropdown-item.selected {
+      background: #fef2f2;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .dropdown-item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .dropdown-item-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: #fee2e2;
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #fecaca;
+      flex-shrink: 0;
+    }
+    .dropdown-item.selected .dropdown-item-badge {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .dropdown-item-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .dropdown-item-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+    .dropdown-item-check {
+      color: var(--primary);
+      font-size: 0.95rem;
+      display: none;
+    }
+    .dropdown-item.selected .dropdown-item-check {
+      display: block;
+    }
+
+    /* Custom Urgency Card Radio Selector (No Dropdown) */
+    .urgency-selector-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .urgency-card-option {
+      background: #f8fafc;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .urgency-card-option:hover {
+      border-color: var(--border-hover);
+      background: white;
+    }
+    .urgency-card-option.selected.critical {
+      background: #fef2f2;
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+    }
+    .urgency-card-option.selected.high {
+      background: #fffbeb;
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+    }
+    .urgency-card-option.selected.standard {
+      background: #f0f9ff;
+      border-color: #0284c7;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+    .urgency-badge-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-bottom: 2px;
+    }
+    .urgency-card-option .urgency-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+    .urgency-card-option .urgency-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Hero Floating Card */
+    .hero-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      position: relative;
+      z-index: 30;
+    }
+    .hero-card-header {
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .hero-card-header h3 {
+      font-size: 1.35rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .hero-card-header p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Live Stats Strip */
+    .stats-strip {
+      background: white;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 30px 6%;
+      position: relative;
+      z-index: 5;
+    }
+    .stats-container {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 25px;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px;
+    }
+    .stat-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: #fee2e2;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .stat-info h4 {
+      font-size: 1.65rem;
+      line-height: 1.1;
+      color: var(--secondary);
+    }
+    .stat-info p {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Section Styles */
+    .section {
+      padding: 75px 6%;
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+    .section-header {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 45px;
+    }
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      letter-spacing: 1.1px;
+      font-weight: 800;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 5px 14px;
+      border-radius: 30px;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 2.25rem;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 1.02rem;
+    }
+
+    /* Active Emergency SOS Board */
+    .sos-section {
+      background: linear-gradient(180deg, #fff1f2 0%, #ffffff 100%);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      margin-bottom: 50px;
+      border: 1px solid #fecdd3;
+      box-shadow: var(--shadow-sm);
+    }
+    .sos-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .sos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 22px;
+    }
+    .sos-card {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 22px;
+      border-left: 5px solid var(--primary);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition);
+      position: relative;
+      border-top: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .sos-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: #fca5a5;
+      border-left-color: var(--primary);
+    }
+    .sos-badge-critical {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: #fee2e2;
+      color: #991b1b;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 9px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .sos-badge-high {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 9px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .sos-badge-standard {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 9px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .sos-patient-info h4 {
+      font-size: 1.18rem;
+      margin-bottom: 4px;
+      padding-right: 90px;
+    }
+    .sos-blood-type {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 8px 0;
+    }
+    .sos-details {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      line-height: 1.55;
+    }
+    .sos-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Find Donor Filters & Results */
+    .search-filter-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-color);
+      margin-bottom: 35px;
+    }
+    .filter-row {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr auto auto;
+      gap: 16px;
+      align-items: flex-end;
+    }
+    .filter-row .form-group {
+      margin-bottom: 0;
+    }
+    .quick-chips-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border-color);
+      flex-wrap: wrap;
+    }
+    .quick-chips-row span {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-right: 4px;
+    }
+    .filter-chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-main);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--secondary);
+      cursor: pointer;
+      transition: var(--transition);
+      user-select: none;
+    }
+    .filter-chip:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: #fff5f5;
+    }
+    .filter-chip.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+
+    /* Donor Result Cards Grid */
+    .donors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+    .donor-card {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 24px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .donor-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: #fca5a5;
+    }
+    .donor-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .donor-profile {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+    .donor-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fee2e2, #fca5a5);
+      color: #991b1b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.15rem;
+      border: 2px solid white;
+      box-shadow: var(--shadow-sm);
+    }
+    .donor-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .donor-verified {
+      color: #0284c7;
+      font-size: 0.92rem;
+    }
+    .donor-location {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+    }
+    .blood-badge-lg {
+      background: #fee2e2;
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 1.25rem;
+      padding: 6px 14px;
+      border-radius: 12px;
+      border: 1.5px solid #fecaca;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
+    }
+    .donor-meta-tags {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .meta-tag {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--bg-main);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+    }
+    .meta-tag.available {
+      background: #dcfce7;
+      color: #15803d;
+      border-color: #bbf7d0;
+    }
+    .donor-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 55px 20px;
+      background: white;
+      border-radius: var(--radius-md);
+      border: 1.5px dashed var(--border-color);
+    }
+    .empty-state i {
+      font-size: 3.2rem;
+      color: #cbd5e1;
+      margin-bottom: 14px;
+    }
+
+    /* Blood Compatibility Matrix Section */
+    .compatibility-box {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 35px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-color);
+    }
+    .blood-selector-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    .blood-chip-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      border: 2px solid var(--border-color);
+      background: var(--bg-main);
+      color: var(--secondary);
+      font-weight: 800;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .blood-chip-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+    .blood-chip-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+    .compat-results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+    }
+    .compat-column {
+      background: var(--bg-main);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      border: 1px solid var(--border-color);
+    }
+    .compat-column h4 {
+      font-size: 1.05rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .compat-tags-container {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .compat-tag {
+      background: white;
+      border: 1.5px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--secondary);
+      box-shadow: var(--shadow-xs);
+    }
+    .compat-tag.highlight {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: #fff5f5;
+    }
+
+    /* Donor Registration Section */
+    .register-container {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 40px;
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 45px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-color);
+    }
+    .register-perks {
+      background: linear-gradient(145deg, #881337 0%, #b91c1c 50%, #dc2626 100%);
+      color: white;
+      border-radius: var(--radius-md);
+      padding: 35px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .register-perks h3 {
+      color: white;
+      font-size: 1.85rem;
+      margin-bottom: 14px;
+    }
+    .perks-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin: 25px 0;
+    }
+    .perks-list li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 0.94rem;
+      line-height: 1.5;
+    }
+    .perks-list li i {
+      background: rgba(255, 255, 255, 0.2);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .eligibility-check-box {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      font-size: 0.85rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Form Grid */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .form-grid .full-width {
+      grid-column: 1 / -1;
+    }
+
+    /* Blood Banks Directory */
+    .banks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 25px;
+    }
+    .bank-card {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 24px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition);
+    }
+    .bank-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: #cbd5e1;
+    }
+    .bank-title {
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bank-title i {
+      color: var(--primary);
+    }
+    .bank-info-item {
+      display: flex;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .bank-info-item i {
+      width: 16px;
+      color: var(--primary);
+      margin-top: 3px;
+    }
+    .stock-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+    .stock-high { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .stock-moderate { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+
+    /* ==========================================================================
+       INTERACTIVE LIVE MAP COMPONENT
+       ========================================================================== */
+    .map-section-wrapper {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .map-controls-bar {
+      padding: 16px 24px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .map-filter-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .map-pill-btn {
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border-color);
+      background: white;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--secondary);
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .map-pill-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .map-pill-btn.active {
+      background: var(--secondary);
+      border-color: var(--secondary);
+      color: white;
+    }
+    .map-pill-btn.active.sos {
+      background: #dc2626;
+      border-color: #dc2626;
+      color: white;
+    }
+    .map-pill-btn.active.banks {
+      background: #0284c7;
+      border-color: #0284c7;
+      color: white;
+    }
+    .map-pill-btn.active.donors {
+      background: #16a34a;
+      border-color: #16a34a;
+      color: white;
+    }
+    .map-location-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .city-select-dropdown {
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border-color);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.84rem;
+      color: var(--secondary);
+      background: white;
+      outline: none;
+      cursor: pointer;
+    }
+    .city-select-dropdown:focus {
+      border-color: var(--primary);
+    }
+    #liveMapContainer {
+      height: 500px;
+      width: 100%;
+      z-index: 1;
+      position: relative;
+    }
+    .map-legend-bar {
+      padding: 12px 24px;
+      background: white;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* Custom Leaflet Pin Markers */
+    .custom-marker-pin {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .custom-marker-pin:hover {
+      transform: scale(1.15);
+    }
+    .pin-sos {
+      background: #dc2626;
+      border: 2px solid white;
+      width: 36px;
+      height: 36px;
+      font-size: 0.95rem;
+      position: relative;
+    }
+    .pin-sos-ripple {
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+      border-radius: 50%;
+      border: 2px solid #ef4444;
+      animation: pinPulse 1.6s infinite;
+      pointer-events: none;
+    }
+    @keyframes pinPulse {
+      0% { transform: scale(0.9); opacity: 0.9; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+    .pin-bank {
+      background: #0284c7;
+      border: 2px solid white;
+      width: 34px;
+      height: 34px;
+      font-size: 0.9rem;
+    }
+    .pin-donor {
+      background: #16a34a;
+      border: 2px solid white;
+      width: 32px;
+      height: 32px;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    /* Leaflet Popup Styling */
+    .leaflet-popup-content-wrapper {
+      border-radius: 12px !important;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2) !important;
+      padding: 0 !important;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+    .leaflet-popup-content {
+      margin: 0 !important;
+      padding: 16px !important;
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+      line-height: 1.4 !important;
+    }
+    .map-popup-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 0.96rem;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .map-popup-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+      color: white;
+    }
+    .map-popup-body {
+      font-size: 0.83rem;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+    .map-popup-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .map-popup-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition);
+      padding: 20px;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-box {
+      background: white;
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 540px;
+      padding: 28px 30px;
+      box-shadow: var(--shadow-xl);
+      transform: scale(0.95);
+      transition: var(--transition);
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 transparent;
+    }
+    .modal-box::-webkit-scrollbar {
+      width: 6px;
+    }
+    .modal-box::-webkit-scrollbar-button {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+    .modal-box::-webkit-scrollbar-track {
+      background: transparent;
+      margin: 8px 0;
+    }
+    .modal-box::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+    .modal-box::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .modal-overlay.active .modal-box {
+      transform: scale(1);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.4rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+      transition: var(--transition);
+    }
+    .modal-close-btn:hover {
+      color: var(--primary);
+    }
+
+    /* Floating Bottom-Right SOS FAB */
+    .floating-sos-fab {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      z-index: 1500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      color: white;
+      padding: 13px 22px 13px 16px;
+      border-radius: 50px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      box-shadow: 0 8px 25px rgba(220, 38, 38, 0.45);
+      cursor: pointer;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      transition: var(--transition);
+      user-select: none;
+      text-decoration: none;
+    }
+    .floating-sos-fab:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 12px 30px rgba(220, 38, 38, 0.6);
+      color: white;
+    }
+    .floating-sos-fab .fab-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      animation: heartBeat 1.8s infinite ease-in-out;
+    }
+    @keyframes heartBeat {
+      0% { transform: scale(1); }
+      14% { transform: scale(1.25); }
+      28% { transform: scale(1); }
+      42% { transform: scale(1.25); }
+      70% { transform: scale(1); }
+    }
+    .fab-pulse-ring {
+      position: absolute;
+      top: -6px;
+      left: -6px;
+      right: -6px;
+      bottom: -6px;
+      border: 2px solid #ef4444;
+      border-radius: 50px;
+      opacity: 0;
+      animation: fabRipple 2s infinite cubic-bezier(0.25, 1, 0.5, 1);
+      pointer-events: none;
+    }
+    @keyframes fabRipple {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      100% { transform: scale(1.25); opacity: 0; }
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 95px;
+      right: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 3000;
+    }
+    .toast {
+      background: white;
+      color: var(--secondary);
+      padding: 14px 20px;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-xl);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      min-width: 300px;
+      border-left: 4px solid var(--primary);
+      animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-top: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .toast.success { border-left-color: var(--success); }
+    .toast.info { border-left-color: #0284c7; }
+    .toast.warning { border-left-color: var(--warning); }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Footer */
+    footer {
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 65px 6% 30px;
+      border-top: 1px solid #1e293b;
+    }
+    .footer-container {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    .footer-col h4 {
+      color: white;
+      margin-bottom: 18px;
+      font-size: 1.1rem;
+    }
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-col ul a {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+    .footer-col ul a:hover {
+      color: white;
+      padding-left: 4px;
+    }
+    .footer-bottom {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding-top: 25px;
+      border-top: 1px solid #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .hero-desc {
+        margin: 0 auto 30px;
+      }
+      .hero-cta-group {
+        justify-content: center;
+      }
+      .stats-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .register-container {
+        grid-template-columns: 1fr;
+      }
+      .compat-results-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 12px 5%;
+      }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 20px;
+        box-shadow: var(--shadow-xl);
+        border-bottom: 1px solid var(--border-color);
+        gap: 16px;
+      }
+      .nav-links.show {
+        display: flex;
+      }
+      .mobile-menu-btn {
+        display: block;
+      }
+      .filter-row {
+        grid-template-columns: 1fr;
+      }
+      .hero-title {
+        font-size: 2.35rem;
+      }
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-container {
+        grid-template-columns: 1fr;
+      }
+      .urgency-selector-grid {
+        grid-template-columns: 1fr;
+      }
+      .floating-sos-fab .fab-label {
+        display: none;
+      }
+      .floating-sos-fab {
+        padding: 12px;
+        border-radius: 50%;
+      }
+      .fab-pulse-ring {
+        border-radius: 50%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Emergency Alert Bar -->
+  <div class="emergency-banner">
+    <div class="banner-info">
+      <span class="pulse-dot"></span>
+      <span><strong>24/7 National Blood Emergency Helpline:</strong> Toll-Free 1800-BLOOD-CONNECT (1800-256-632)</span>
+    </div>
+    <button class="banner-cta" onclick="openSosModal()">
+      <i class="fa-solid fa-bullhorn"></i> Post Emergency SOS
+    </button>
+  </div>
+
+  <!-- Main Navigation -->
+  <header class="navbar">
+    <a href="#home" class="logo">
+      <div class="logo-icon">
+        <i class="fa-solid fa-droplet"></i>
+      </div>
+      <div class="logo-text">Life<span>Drop</span></div>
+    </a>
+
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home" class="active">Home</a></li>
+        <li><a href="#sos">Emergency SOS</a></li>
+        <li><a href="#find">Find Donors</a></li>
+        <li><a href="#map">Live Map</a></li>
+        <li><a href="#compatibility">Compatibility</a></li>
+        <li><a href="#register">Register</a></li>
+        <li><a href="#banks">Blood Banks</a></li>
+      </ul>
+    </nav>
+
+    <div class="nav-actions">
+      <button class="nav-btn-sos" onclick="openSosModal()">
+        <i class="fa-solid fa-truck-medical"></i> Request Blood
+      </button>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <i class="fa-solid fa-bolt"></i> 24/7 Verified Blood Emergency Network
+        </div>
+        <h1 class="hero-title">
+          Connecting <span class="highlight">Lives</span> When Seconds Count.
+        </h1>
+        <p class="hero-desc">
+          Instant access to verified voluntary blood donors and accredited local blood banks. Locate compatible blood units by GPS or city in seconds.
+        </p>
+        <div class="hero-cta-group">
+          <a href="#find" class="btn-primary">
+            <i class="fa-solid fa-magnifying-glass-location"></i> Find Donor Near Me
+          </a>
+          <a href="#register" class="btn-secondary">
+            <i class="fa-solid fa-heart-pulse"></i> Become a Donor
+          </a>
+        </div>
+      </div>
+
+      <!-- Hero Quick Search Card with Custom Select Component -->
+      <div class="hero-card">
+        <div class="hero-card-header">
+          <h3><i class="fa-solid fa-bolt-lightning" style="color: var(--primary);"></i> Rapid Donor Search</h3>
+          <p>Search active donors currently available in your region</p>
+        </div>
+        <form id="heroQuickSearchForm" onsubmit="handleHeroSearch(event)">
+          <div class="form-group">
+            <label>
+              <span>Required Blood Group *</span>
+              <span class="label-hint">Interactive selector</span>
+            </label>
+            
+            <!-- Custom Select Component -->
+            <div class="custom-dropdown-container" id="heroBloodDropdown">
+              <input type="hidden" id="heroBloodGroup" value="" required>
+              <div class="dropdown-trigger" onclick="toggleDropdown('heroBloodDropdown')">
+                <i class="fa-solid fa-droplet input-icon"></i>
+                <div class="dropdown-selected-content">
+                  <span class="selected-placeholder">Select Blood Type...</span>
+                </div>
+                <i class="fa-solid fa-chevron-down dropdown-chevron"></i>
+              </div>
+              <div class="dropdown-panel">
+                <div class="dropdown-group-header">Universal Types</div>
+                <div class="dropdown-item" onclick="selectDropdownOption('heroBloodDropdown', 'O-', 'O- (Universal Donor)', 'O-')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">O-</div>
+                    <div>
+                      <div class="dropdown-item-title">O Negative (O-)</div>
+                      <div class="dropdown-item-subtitle">Universal Red Cell Donor</div>
+                    </div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('heroBloodDropdown', 'AB+', 'AB+ (Universal Recipient)', 'AB+')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">AB+</div>
+                    <div>
+                      <div class="dropdown-item-title">AB Positive (AB+)</div>
+                      <div class="dropdown-item-subtitle">Universal Plasma Recipient</div>
+                    </div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-group-header">Standard Blood Groups</div>
+                <div class="dropdown-item" onclick="selectDropdownOption('heroBloodDropdown', 'O+', 'O Positive (O+)', 'O+')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">O+</div>
+                    <div>
+                      <div class="dropdown-item-title">O Positive (O+)</div>
+                      <div class="dropdown-item-subtitle">Most common blood group</div>
+                    </div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('heroBloodDropdown', 'A+', 'A Positive (A+)', 'A+')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">A+</div>
+                    <div>
+                      <div class="dropdown-item-title">A Positive (A+)</div>
+                      <div class="dropdown-item-subtitle">High demand group</div>
+                    </div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('heroBloodDropdown', 'A-', 'A Negative (A-)', 'A-')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">A-</div>
+                    <div>
+                      <div class="dropdown-item-title">A Negative (A-)</div>
+                      <div class="dropdown-item-subtitle">Rare donor group</div>
+                    </div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('heroBloodDropdown', 'B+', 'B Positive (B+)', 'B+')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">B+</div>
+                    <div>
+                      <div class="dropdown-item-title">B Positive (B+)</div>
+                      <div class="dropdown-item-subtitle">Widely compatible</div>
+                    </div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('heroBloodDropdown', 'B-', 'B Negative (B-)', 'B-')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">B-</div>
+                    <div>
+                      <div class="dropdown-item-title">B Negative (B-)</div>
+                      <div class="dropdown-item-subtitle">Rare donor group</div>
+                    </div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('heroBloodDropdown', 'AB-', 'AB Negative (AB-)', 'AB-')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">AB-</div>
+                    <div>
+                      <div class="dropdown-item-title">AB Negative (AB-)</div>
+                      <div class="dropdown-item-subtitle">Rarest blood group</div>
+                    </div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 22px;">
+            <label for="heroCity">
+              <span>Your City / Area *</span>
+              <span class="label-hint">Type or select</span>
+            </label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-location-dot input-icon"></i>
+              <input type="text" id="heroCity" class="custom-input" placeholder="e.g. Bangalore, Mumbai, Chennai" list="citySuggestions" required>
+              <datalist id="citySuggestions">
+                <option value="Bangalore">
+                <option value="Mumbai">
+                <option value="Chennai">
+                <option value="Delhi">
+                <option value="Hyderabad">
+                <option value="Kolkata">
+                <option value="Pune">
+                <option value="Ahmedabad">
+              </datalist>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; height: 48px;">
+            <i class="fa-solid fa-magnifying-glass"></i> Search Nearby Donors
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Stats Strip -->
+  <div class="stats-strip">
+    <div class="stats-container">
+      <div class="stat-item">
+        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+        <div class="stat-info">
+          <h4 id="statDonors">3,450+</h4>
+          <p>Verified Donors</p>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+        <div class="stat-info">
+          <h4>&lt; 15 Mins</h4>
+          <p>Avg. Response Time</p>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon"><i class="fa-solid fa-hospital"></i></div>
+        <div class="stat-info">
+          <h4>180+</h4>
+          <p>Partner Blood Banks</p>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon"><i class="fa-solid fa-heart"></i></div>
+        <div class="stat-info">
+          <h4>8,920+</h4>
+          <p>Lives Saved</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Emergency SOS Broadcast Board -->
+  <section class="section" id="sos" style="padding-top: 50px; padding-bottom: 30px;">
+    <div class="sos-section">
+      <div class="sos-header">
+        <div>
+          <span class="section-tag" style="background: #fee2e2; color: #b91c1c;">
+            <i class="fa-solid fa-tower-broadcast"></i> Live Emergency Broadcast
+          </span>
+          <h2 style="font-size: 1.85rem; margin-top: 5px;">Active Urgent Patient Requests</h2>
+        </div>
+        <button class="btn-primary" onclick="openSosModal()">
+          <i class="fa-solid fa-plus-circle"></i> Post New Emergency Request
+        </button>
+      </div>
+      
+      <div class="sos-grid" id="sosGrid">
+        <!-- SOS cards rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Find Donors Section -->
+  <section class="section" id="find">
+    <div class="section-header">
+      <span class="section-tag"><i class="fa-solid fa-magnifying-glass"></i> Search Network</span>
+      <h2 class="section-title">Find Voluntary Donors Near You</h2>
+      <p class="section-desc">Search by specific blood group, city or use GPS detection to locate active donors ready to help immediately.</p>
+    </div>
+
+    <!-- Search & Filter Card with Custom Filter Dropdown -->
+    <div class="search-filter-card">
+      <form id="searchForm" onsubmit="handleSearch(event)">
+        <div class="filter-row">
+          <div class="form-group">
+            <label>Blood Group</label>
+            <div class="custom-dropdown-container" id="filterBloodDropdown">
+              <input type="hidden" id="searchGroup" value="">
+              <div class="dropdown-trigger" onclick="toggleDropdown('filterBloodDropdown')">
+                <i class="fa-solid fa-droplet input-icon"></i>
+                <div class="dropdown-selected-content">
+                  <span class="selected-text">All Blood Groups</span>
+                </div>
+                <i class="fa-solid fa-chevron-down dropdown-chevron"></i>
+              </div>
+              <div class="dropdown-panel">
+                <div class="dropdown-item selected" onclick="selectDropdownOption('filterBloodDropdown', '', 'All Blood Groups', 'ALL')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">ALL</div>
+                    <div>
+                      <div class="dropdown-item-title">All Blood Groups</div>
+                      <div class="dropdown-item-subtitle">Show every available donor</div>
+                    </div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-group-header">Select Specific Type</div>
+                <div class="dropdown-item" onclick="selectDropdownOption('filterBloodDropdown', 'O+', 'O Positive (O+)', 'O+')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">O+</div>
+                    <div class="dropdown-item-title">O Positive (O+)</div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('filterBloodDropdown', 'O-', 'O Negative (O-)', 'O-')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">O-</div>
+                    <div class="dropdown-item-title">O Negative (O-)</div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('filterBloodDropdown', 'A+', 'A Positive (A+)', 'A+')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">A+</div>
+                    <div class="dropdown-item-title">A Positive (A+)</div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('filterBloodDropdown', 'A-', 'A Negative (A-)', 'A-')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">A-</div>
+                    <div class="dropdown-item-title">A Negative (A-)</div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('filterBloodDropdown', 'B+', 'B Positive (B+)', 'B+')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">B+</div>
+                    <div class="dropdown-item-title">B Positive (B+)</div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('filterBloodDropdown', 'B-', 'B Negative (B-)', 'B-')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">B-</div>
+                    <div class="dropdown-item-title">B Negative (B-)</div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('filterBloodDropdown', 'AB+', 'AB Positive (AB+)', 'AB+')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">AB+</div>
+                    <div class="dropdown-item-title">AB Positive (AB+)</div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('filterBloodDropdown', 'AB-', 'AB Negative (AB-)', 'AB-')">
+                  <div class="dropdown-item-left">
+                    <div class="dropdown-item-badge">AB-</div>
+                    <div class="dropdown-item-title">AB Negative (AB-)</div>
+                  </div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="searchLocation">City or Location</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-city input-icon"></i>
+              <input type="text" id="searchLocation" class="custom-input" placeholder="Enter city (e.g. Bangalore, Chennai)" list="citySuggestions">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <button type="button" class="btn-secondary" onclick="useGpsLocation()" id="gpsBtn" title="Use current GPS location" style="height: 48px; white-space: nowrap;">
+              <i class="fa-solid fa-crosshairs"></i> GPS Near Me
+            </button>
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="btn-primary" style="height: 48px; white-space: nowrap;">
+              <i class="fa-solid fa-filter"></i> Search Donors
+            </button>
+          </div>
+        </div>
+
+        <div class="quick-chips-row">
+          <span>Quick Filter:</span>
+          <div class="filter-chip active" onclick="quickFilterBlood('')">All</div>
+          <div class="filter-chip" onclick="quickFilterBlood('O+')">O+</div>
+          <div class="filter-chip" onclick="quickFilterBlood('O-')">O- (Universal)</div>
+          <div class="filter-chip" onclick="quickFilterBlood('A+')">A+</div>
+          <div class="filter-chip" onclick="quickFilterBlood('A-')">A-</div>
+          <div class="filter-chip" onclick="quickFilterBlood('B+')">B+</div>
+          <div class="filter-chip" onclick="quickFilterBlood('B-')">B-</div>
+          <div class="filter-chip" onclick="quickFilterBlood('AB+')">AB+</div>
+          <div class="filter-chip" onclick="quickFilterBlood('AB-')">AB-</div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Results Grid -->
+    <div class="donors-grid" id="donorsGrid">
+      <!-- Donors cards rendered dynamically -->
+    </div>
+  </section>
+
+  <!-- Interactive Blood Compatibility Matrix -->
+  <section class="section" id="compatibility" style="background: white; border-radius: var(--radius-xl); margin-top: 40px; margin-bottom: 40px; border: 1px solid var(--border-color);">
+    <div class="section-header">
+      <span class="section-tag"><i class="fa-solid fa-diagram-project"></i> Compatibility Matrix</span>
+      <h2 class="section-title">Blood Group Compatibility Checker</h2>
+      <p class="section-desc">Select your blood group below to see who you can safely donate to and receive blood from.</p>
+    </div>
+
+    <div class="compatibility-box">
+      <div class="blood-selector-group" id="compatSelector">
+        <button type="button" class="blood-chip-btn active" onclick="selectCompatibility('O+')">O+</button>
+        <button type="button" class="blood-chip-btn" onclick="selectCompatibility('O-')">O-</button>
+        <button type="button" class="blood-chip-btn" onclick="selectCompatibility('A+')">A+</button>
+        <button type="button" class="blood-chip-btn" onclick="selectCompatibility('A-')">A-</button>
+        <button type="button" class="blood-chip-btn" onclick="selectCompatibility('B+')">B+</button>
+        <button type="button" class="blood-chip-btn" onclick="selectCompatibility('B-')">B-</button>
+        <button type="button" class="blood-chip-btn" onclick="selectCompatibility('AB+')">AB+</button>
+        <button type="button" class="blood-chip-btn" onclick="selectCompatibility('AB-')">AB-</button>
+      </div>
+
+      <div class="compat-results-grid">
+        <div class="compat-column">
+          <h4><i class="fa-solid fa-hand-holding-heart" style="color: var(--primary);"></i> You Can Donate To:</h4>
+          <div class="compat-tags-container" id="giveToTags">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+        <div class="compat-column">
+          <h4><i class="fa-solid fa-heart-circle-check" style="color: var(--success);"></i> You Can Receive From:</h4>
+          <div class="compat-tags-container" id="receiveFromTags">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Register as a Donor -->
+  <section class="section" id="register">
+    <div class="register-container">
+      <div class="register-perks">
+        <div>
+          <span class="section-tag" style="background: rgba(255,255,255,0.22); color: white;">
+            <i class="fa-solid fa-hand-holding-medical"></i> Join The Mission
+          </span>
+          <h3>Become a Life Saver</h3>
+          <p style="opacity: 0.92; font-size: 0.96rem; margin-top: 8px;">A single pint of blood can save up to three lives. Register today and get notified when someone near you is in urgent need.</p>
+          
+          <ul class="perks-list">
+            <li>
+              <i class="fa-solid fa-shield-heart"></i>
+              <div><strong>100% Private & Secure:</strong> Your contact details are only shared during verified emergencies.</div>
+            </li>
+            <li>
+              <i class="fa-solid fa-bell"></i>
+              <div><strong>Smart Local Alerts:</strong> Receive notifications only when your specific blood group is needed nearby.</div>
+            </li>
+            <li>
+              <i class="fa-solid fa-award"></i>
+              <div><strong>Donor Recognition:</strong> Earn donor badges and certificates for your humanitarian contributions.</div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="eligibility-check-box">
+          <i class="fa-solid fa-circle-info"></i> <strong>Eligibility Criteria:</strong> Age 18–65, weight ≥ 50kg, and at least 90 days since your last whole blood donation.
+        </div>
+      </div>
+
+      <!-- Registration Form with Custom Dropdown -->
+      <div>
+        <h3 style="font-size: 1.65rem; margin-bottom: 6px;">Donor Registration</h3>
+        <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 0.92rem;">Fill in your details to join our voluntary donor directory.</p>
+        
+        <form id="registerForm" onsubmit="handleRegistration(event)">
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label for="regName">Full Name *</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-user input-icon"></i>
+                <input type="text" id="regName" class="custom-input" placeholder="e.g. Rahul Sharma" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Blood Group *</label>
+              <!-- Custom Dropdown for Register -->
+              <div class="custom-dropdown-container" id="regBloodDropdown">
+                <input type="hidden" id="regBloodGroup" value="" required>
+                <div class="dropdown-trigger" onclick="toggleDropdown('regBloodDropdown')">
+                  <i class="fa-solid fa-droplet input-icon"></i>
+                  <div class="dropdown-selected-content">
+                    <span class="selected-placeholder">Select Blood Group...</span>
+                  </div>
+                  <i class="fa-solid fa-chevron-down dropdown-chevron"></i>
+                </div>
+                <div class="dropdown-panel">
+                  <div class="dropdown-item" onclick="selectDropdownOption('regBloodDropdown', 'O+', 'O Positive (O+)', 'O+')">
+                    <div class="dropdown-item-left"><div class="dropdown-item-badge">O+</div><div class="dropdown-item-title">O Positive (O+)</div></div>
+                    <i class="fa-solid fa-check dropdown-item-check"></i>
+                  </div>
+                  <div class="dropdown-item" onclick="selectDropdownOption('regBloodDropdown', 'O-', 'O Negative (O-)', 'O-')">
+                    <div class="dropdown-item-left"><div class="dropdown-item-badge">O-</div><div class="dropdown-item-title">O Negative (O-)</div></div>
+                    <i class="fa-solid fa-check dropdown-item-check"></i>
+                  </div>
+                  <div class="dropdown-item" onclick="selectDropdownOption('regBloodDropdown', 'A+', 'A Positive (A+)', 'A+')">
+                    <div class="dropdown-item-left"><div class="dropdown-item-badge">A+</div><div class="dropdown-item-title">A Positive (A+)</div></div>
+                    <i class="fa-solid fa-check dropdown-item-check"></i>
+                  </div>
+                  <div class="dropdown-item" onclick="selectDropdownOption('regBloodDropdown', 'A-', 'A Negative (A-)', 'A-')">
+                    <div class="dropdown-item-left"><div class="dropdown-item-badge">A-</div><div class="dropdown-item-title">A Negative (A-)</div></div>
+                    <i class="fa-solid fa-check dropdown-item-check"></i>
+                  </div>
+                  <div class="dropdown-item" onclick="selectDropdownOption('regBloodDropdown', 'B+', 'B Positive (B+)', 'B+')">
+                    <div class="dropdown-item-left"><div class="dropdown-item-badge">B+</div><div class="dropdown-item-title">B Positive (B+)</div></div>
+                    <i class="fa-solid fa-check dropdown-item-check"></i>
+                  </div>
+                  <div class="dropdown-item" onclick="selectDropdownOption('regBloodDropdown', 'B-', 'B Negative (B-)', 'B-')">
+                    <div class="dropdown-item-left"><div class="dropdown-item-badge">B-</div><div class="dropdown-item-title">B Negative (B-)</div></div>
+                    <i class="fa-solid fa-check dropdown-item-check"></i>
+                  </div>
+                  <div class="dropdown-item" onclick="selectDropdownOption('regBloodDropdown', 'AB+', 'AB Positive (AB+)', 'AB+')">
+                    <div class="dropdown-item-left"><div class="dropdown-item-badge">AB+</div><div class="dropdown-item-title">AB Positive (AB+)</div></div>
+                    <i class="fa-solid fa-check dropdown-item-check"></i>
+                  </div>
+                  <div class="dropdown-item" onclick="selectDropdownOption('regBloodDropdown', 'AB-', 'AB Negative (AB-)', 'AB-')">
+                    <div class="dropdown-item-left"><div class="dropdown-item-badge">AB-</div><div class="dropdown-item-title">AB Negative (AB-)</div></div>
+                    <i class="fa-solid fa-check dropdown-item-check"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regPhone">Phone Number *</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-phone input-icon"></i>
+                <input type="tel" id="regPhone" class="custom-input" placeholder="e.g. 9876543210" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regCity">City *</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-city input-icon"></i>
+                <input type="text" id="regCity" class="custom-input" placeholder="e.g. Chennai" list="citySuggestions" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regArea">Area / Neighborhood</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-map-pin input-icon"></i>
+                <input type="text" id="regArea" class="custom-input" placeholder="e.g. Indiranagar">
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="regLastDonation">
+                <span>Last Donation Date (Optional)</span>
+                <span class="label-hint">For 90-day interval tracking</span>
+              </label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-calendar-days input-icon"></i>
+                <input type="date" id="regLastDonation" class="custom-input">
+              </div>
+            </div>
+
+            <div class="form-group full-width" style="margin-top: 8px;">
+              <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; height: 50px; font-size: 1.02rem;">
+                <i class="fa-solid fa-user-plus"></i> Complete Donor Registration
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Live Geospatial Map Section -->
+  <section class="section" id="map" style="padding-top: 30px;">
+    <div class="section-header">
+      <span class="section-tag"><i class="fa-solid fa-earth-asia"></i> Real-Time Geospatial Network</span>
+      <h2 class="section-title">Interactive Live Map View</h2>
+      <p class="section-desc">Locate live emergency SOS broadcasts, accredited blood banks, and verified voluntary donors near your area in real-time.</p>
+    </div>
+
+    <div class="map-section-wrapper">
+      <!-- Map Controls & Filter Header -->
+      <div class="map-controls-bar">
+        <div class="map-filter-pills">
+          <span style="font-size: 0.82rem; font-weight: 800; color: var(--text-muted); margin-right: 4px;">FILTER:</span>
+          <button type="button" class="map-pill-btn active" onclick="filterMapMarkers('all', this)">
+            <i class="fa-solid fa-layer-group"></i> All Markers (<span id="countMapAll">0</span>)
+          </button>
+          <button type="button" class="map-pill-btn" onclick="filterMapMarkers('sos', this)">
+            <i class="fa-solid fa-triangle-exclamation" style="color:#dc2626;"></i> SOS Alerts (<span id="countMapSos">0</span>)
+          </button>
+          <button type="button" class="map-pill-btn" onclick="filterMapMarkers('bank', this)">
+            <i class="fa-solid fa-square-h" style="color:#0284c7;"></i> Blood Banks (<span id="countMapBanks">0</span>)
+          </button>
+          <button type="button" class="map-pill-btn" onclick="filterMapMarkers('donor', this)">
+            <i class="fa-solid fa-droplet" style="color:#16a34a;"></i> Donors (<span id="countMapDonors">0</span>)
+          </button>
+        </div>
+
+        <div class="map-location-actions">
+          <select class="city-select-dropdown" id="mapCitySelector" onchange="jumpMapToCity(this.value)">
+            <option value="bangalore">📍 Bangalore (Default)</option>
+            <option value="mumbai">📍 Mumbai</option>
+            <option value="delhi">📍 Delhi NCR</option>
+            <option value="chennai">📍 Chennai</option>
+            <option value="hyderabad">📍 Hyderabad</option>
+            <option value="kolkata">📍 Kolkata</option>
+            <option value="pune">📍 Pune</option>
+            <option value="ahmedabad">📍 Ahmedabad</option>
+          </select>
+
+          <button type="button" class="btn-primary" style="padding: 8px 16px; font-size: 0.84rem;" onclick="centerMapOnUserGps()">
+            <i class="fa-solid fa-crosshairs"></i> Locate Me
+          </button>
+        </div>
+      </div>
+
+      <!-- Leaflet Map Container -->
+      <div id="liveMapContainer"></div>
+
+      <!-- Map Legend & Quick Stats -->
+      <div class="map-legend-bar">
+        <div style="display:flex; gap: 18px; align-items:center; flex-wrap:wrap;">
+          <span class="legend-item"><span class="legend-dot" style="background:#dc2626; box-shadow: 0 0 0 2px #fecaca;"></span> <strong>Emergency SOS</strong> (Pulsing Red)</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#0284c7; box-shadow: 0 0 0 2px #bae6fd;"></span> <strong>Verified Blood Banks</strong> (Blue Hospital)</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#16a34a; box-shadow: 0 0 0 2px #bbf7d0;"></span> <strong>Available Donors</strong> (Green Drop)</span>
+        </div>
+        <div>
+          <span style="color: var(--text-muted); font-size: 0.78rem;">Live GPS & OpenStreetMap Powered</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trusted Blood Banks Directory -->
+  <section class="section" id="banks">
+    <div class="section-header">
+      <span class="section-tag"><i class="fa-solid fa-hospital"></i> Partner Facilities</span>
+      <h2 class="section-title">Verified Regional Blood Banks</h2>
+      <p class="section-desc">Connect directly with licensed hospital blood banks and certified cold-storage blood transfusion centers.</p>
+    </div>
+
+    <div class="banks-grid" id="banksGrid">
+      <!-- Banks rendered by JS -->
+    </div>
+  </section>
+
+  <!-- Floating Bottom-Right SOS Button -->
+  <div class="floating-sos-fab" id="floatingSosBtn" onclick="openSosModal()" title="Emergency SOS - Request Blood Now">
+    <div class="fab-pulse-ring"></div>
+    <div class="fab-icon">
+      <i class="fa-solid fa-truck-medical"></i>
+    </div>
+    <span class="fab-label">SOS Emergency</span>
+  </div>
+
+  <!-- Emergency SOS Modal with Custom Blood Dropdown & Urgency Cards -->
+  <div class="modal-overlay" id="sosModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-triangle-exclamation" style="color: var(--primary);"></i> Post Emergency Blood Request</h3>
+        <button type="button" class="modal-close-btn" onclick="closeSosModal()">&times;</button>
+      </div>
+      <form id="sosForm" onsubmit="handleSosSubmit(event)">
+        <div class="form-group">
+          <label for="sosPatientName">Patient Full Name *</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user-injured input-icon"></i>
+            <input type="text" id="sosPatientName" class="custom-input" placeholder="e.g. Ramesh Chandra" required>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Blood Group Required *</label>
+            <!-- Custom Dropdown for SOS -->
+            <div class="custom-dropdown-container" id="sosBloodDropdown">
+              <input type="hidden" id="sosBloodGroup" value="" required>
+              <div class="dropdown-trigger" onclick="toggleDropdown('sosBloodDropdown')">
+                <i class="fa-solid fa-droplet input-icon"></i>
+                <div class="dropdown-selected-content">
+                  <span class="selected-placeholder">Choose Blood...</span>
+                </div>
+                <i class="fa-solid fa-chevron-down dropdown-chevron"></i>
+              </div>
+              <div class="dropdown-panel">
+                <div class="dropdown-item" onclick="selectDropdownOption('sosBloodDropdown', 'O+', 'O Positive (O+)', 'O+')">
+                  <div class="dropdown-item-left"><div class="dropdown-item-badge">O+</div><div class="dropdown-item-title">O+ (O Positive)</div></div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('sosBloodDropdown', 'O-', 'O Negative (O-)', 'O-')">
+                  <div class="dropdown-item-left"><div class="dropdown-item-badge">O-</div><div class="dropdown-item-title">O- (O Negative)</div></div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('sosBloodDropdown', 'A+', 'A Positive (A+)', 'A+')">
+                  <div class="dropdown-item-left"><div class="dropdown-item-badge">A+</div><div class="dropdown-item-title">A+ (A Positive)</div></div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('sosBloodDropdown', 'A-', 'A Negative (A-)', 'A-')">
+                  <div class="dropdown-item-left"><div class="dropdown-item-badge">A-</div><div class="dropdown-item-title">A- (A Negative)</div></div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('sosBloodDropdown', 'B+', 'B Positive (B+)', 'B+')">
+                  <div class="dropdown-item-left"><div class="dropdown-item-badge">B+</div><div class="dropdown-item-title">B+ (B Positive)</div></div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('sosBloodDropdown', 'B-', 'B Negative (B-)', 'B-')">
+                  <div class="dropdown-item-left"><div class="dropdown-item-badge">B-</div><div class="dropdown-item-title">B- (B Negative)</div></div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('sosBloodDropdown', 'AB+', 'AB Positive (AB+)', 'AB+')">
+                  <div class="dropdown-item-left"><div class="dropdown-item-badge">AB+</div><div class="dropdown-item-title">AB+ (AB Positive)</div></div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+                <div class="dropdown-item" onclick="selectDropdownOption('sosBloodDropdown', 'AB-', 'AB Negative (AB-)', 'AB-')">
+                  <div class="dropdown-item-left"><div class="dropdown-item-badge">AB-</div><div class="dropdown-item-title">AB- (AB Negative)</div></div>
+                  <i class="fa-solid fa-check dropdown-item-check"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="sosUnits">Units Needed *</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-boxes-stacked input-icon"></i>
+              <input type="number" id="sosUnits" class="custom-input" min="1" max="10" value="1" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="sosHospital">Hospital Name & City *</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-hospital input-icon"></i>
+            <input type="text" id="sosHospital" class="custom-input" placeholder="e.g. Apollo Hospital, Bangalore" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="sosPhone">Emergency Contact Phone *</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-phone input-icon"></i>
+            <input type="tel" id="sosPhone" class="custom-input" placeholder="Attender / Coordinator phone" required>
+          </div>
+        </div>
+
+        <!-- Custom Visual Urgency Selector Cards (No Dropdown) -->
+        <div class="form-group" style="margin-bottom: 24px;">
+          <label>Urgency Level *</label>
+          <input type="hidden" id="sosUrgency" value="Critical (Within 2 hrs)">
+          <div class="urgency-selector-grid">
+            <div class="urgency-card-option selected critical" onclick="selectUrgencyCard(this, 'Critical (Within 2 hrs)')">
+              <div class="urgency-badge-dot" style="background:#ef4444;"></div>
+              <div class="urgency-title">Critical</div>
+              <div class="urgency-subtitle">Within 2 hrs</div>
+            </div>
+            <div class="urgency-card-option high" onclick="selectUrgencyCard(this, 'High (Within 6 hrs)')">
+              <div class="urgency-badge-dot" style="background:#f59e0b;"></div>
+              <div class="urgency-title">High</div>
+              <div class="urgency-subtitle">Within 6 hrs</div>
+            </div>
+            <div class="urgency-card-option standard" onclick="selectUrgencyCard(this, 'Standard (Within 24 hrs)')">
+              <div class="urgency-badge-dot" style="background:#0284c7;"></div>
+              <div class="urgency-title">Standard</div>
+              <div class="urgency-subtitle">Within 24 hrs</div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; height: 50px;">
+          <i class="fa-solid fa-paper-plane"></i> Broadcast Emergency Request
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div>
+        <div class="logo" style="margin-bottom: 16px;">
+          <div class="logo-icon" style="width: 36px; height: 36px; font-size: 1.1rem;">
+            <i class="fa-solid fa-droplet"></i>
+          </div>
+          <div class="logo-text" style="color: white; font-size: 1.25rem;">Life<span>Drop</span></div>
+        </div>
+        <p style="font-size: 0.9rem; line-height: 1.6;">
+          LifeDrop is a humanitarian digital platform dedicated to closing the emergency blood supply gap by uniting donors, patients, and healthcare networks in real-time.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#find">Find Donors</a></li>
+          <li><a href="#compatibility">Blood Compatibility</a></li>
+          <li><a href="#register">Donor Registration</a></li>
+          <li><a href="#banks">Blood Banks</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Donor Support</h4>
+        <ul>
+          <li><a href="#compatibility">Eligibility Checker</a></li>
+          <li><a href="#sos">Active SOS Board</a></li>
+          <li><a href="tel:1800256632">Emergency Hotline</a></li>
+          <li><a href="#banks">Donation Camps</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Emergency Hotline</h4>
+        <p style="color: white; font-size: 1.2rem; font-weight: 800; margin-bottom: 8px;">
+          <i class="fa-solid fa-phone-volume" style="color: var(--primary);"></i> 1800-BLOOD-CONNECT
+        </p>
+        <p style="font-size: 0.85rem;">Available 24/7 across all regional zones.</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2025 LifeDrop Network | Designed with care for saving lives | GPS & Emergency Ready</p>
+      <p>Every Drop Counts 🩸</p>
+    </div>
+  </footer>
+
+  <script>
+    // =========================================================================
+    // SUPABASE INTEGRATION & CONFIGURATION
+    // =========================================================================
+    const SUPABASE_URL = "https://btslkejjlolayjszuvtq.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0c2xrZWpqbG9sYXlqc3p1dnRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwNzI4NzcsImV4cCI6MjEwNTY0ODg3N30.xD1iyeWr3OufZgpVFXv7mqTqmNfjBsGh6RgYGiysq2g";
+    
+    let supabaseClient = null;
+    try {
+      if (window.supabase && typeof window.supabase.createClient === 'function') {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log("⚡ Supabase Client initialized successfully.");
+      }
+    } catch (e) {
+      console.warn("Supabase initialization fallback:", e);
+    }
+
+    // Initial Default Seed Data
+    const defaultDonors = [
+      { id: 1, name: "Dr. Rahul Verma", bloodGroup: "O-", city: "bangalore", area: "Indiranagar", phone: "+919876543210", available: true, distance: "1.8 km away", lastDonated: "4 months ago" },
+      { id: 2, name: "Priya Sundaram", bloodGroup: "A+", city: "bangalore", area: "Koramangala", phone: "+919845011223", available: true, distance: "3.2 km away", lastDonated: "5 months ago" },
+      { id: 3, name: "Amitabh Sen", bloodGroup: "B+", city: "mumbai", area: "Andheri West", phone: "+919731234567", available: true, distance: "2.1 km away", lastDonated: "6 months ago" },
+      { id: 4, name: "Sneha Patel", bloodGroup: "O+", city: "mumbai", area: "Bandra", phone: "+919920188765", available: true, distance: "4.5 km away", lastDonated: "3 months ago" },
+      { id: 5, name: "Kavita Nair", bloodGroup: "AB+", city: "chennai", area: "Adyar", phone: "+919447123456", available: true, distance: "1.2 km away", lastDonated: "7 months ago" },
+      { id: 6, name: "Rajesh Khanna", bloodGroup: "AB-", city: "delhi", area: "Connaught Place", phone: "+919811056789", available: true, distance: "5.0 km away", lastDonated: "4 months ago" }
+    ];
+
+    const defaultSosRequests = [
+      { id: 101, patientName: "Deepak Sharma", bloodGroup: "O-", units: 2, hospital: "Fortis Hospital, Bangalore", phone: "+919880012345", urgency: "Critical (Within 2 hrs)", time: "15 mins ago" },
+      { id: 102, patientName: "Ananya Gupta", bloodGroup: "AB-", units: 1, hospital: "Max Super Speciality, Delhi", phone: "+919810123456", urgency: "High (Within 6 hrs)", time: "42 mins ago" },
+      { id: 103, patientName: "Mohammed Rafi", bloodGroup: "B+", units: 3, hospital: "Lilavati Hospital, Mumbai", phone: "+919820067890", urgency: "Standard (Within 24 hrs)", time: "1 hr ago" }
+    ];
+
+    const defaultBanks = [
+      { name: "Red Cross Central Blood Centre", city: "Chennai", address: "50, Montieth Rd, Egmore", phone: "+91 44 2855 4606", hours: "24/7 Open", stock: "High Stock Available", stockClass: "stock-high" },
+      { name: "Apollo Main Hospital Blood Bank", city: "Bangalore", address: "154/11, Bannerghatta Rd, Opp. IIMB", phone: "+91 80 2630 4050", hours: "24/7 Open", stock: "High Stock Available", stockClass: "stock-high" },
+      { name: "Jeevan Blood Bank & Research Institute", city: "Hyderabad", address: "Road No. 2, Banjara Hills", phone: "+91 40 2355 7788", hours: "24/7 Emergency Ready", stock: "Moderate Stock", stockClass: "stock-moderate" },
+      { name: "Rotary Blood Bank", city: "Delhi", address: "56-57, Tughlakabad Institutional Area", phone: "+91 11 2996 6699", hours: "24/7 Open", stock: "High Stock Available", stockClass: "stock-high" },
+      { name: "Tata Memorial Centre Blood Bank", city: "Mumbai", address: "Dr. E Borges Rd, Parel", phone: "+91 22 2417 7000", hours: "24/7 Emergency Ready", stock: "High Stock Available", stockClass: "stock-high" },
+      { name: "Manipal Hospital Blood Storage Unit", city: "Bangalore", address: "98, HAL Old Airport Rd, Kodihalli", phone: "+91 80 2502 4444", hours: "24/7 Open", stock: "Moderate Stock", stockClass: "stock-moderate" }
+    ];
+
+    const compatibilityMap = {
+      "O+": { give: ["O+", "A+", "B+", "AB+"], receive: ["O+", "O-"] },
+      "O-": { give: ["All Blood Groups (Universal Donor)"], receive: ["O-"] },
+      "A+": { give: ["A+", "AB+"], receive: ["A+", "A-", "O+", "O-"] },
+      "A-": { give: ["A+", "A-", "AB+", "AB-"], receive: ["A-", "O-"] },
+      "B+": { give: ["B+", "AB+"], receive: ["B+", "B-", "O+", "O-"] },
+      "B-": { give: ["B+", "B-", "AB+", "AB-"], receive: ["B-", "O-"] },
+      "AB+": { give: ["AB+"], receive: ["All Blood Groups (Universal Recipient)"] },
+      "AB-": { give: ["AB+", "AB-"], receive: ["AB-", "A-", "B-", "O-"] }
+    };
+
+    // State Initialization
+    function initData() {
+      if (!localStorage.getItem("lifedrop_donors")) {
+        localStorage.setItem("lifedrop_donors", JSON.stringify(defaultDonors));
+      }
+      if (!localStorage.getItem("lifedrop_sos")) {
+        localStorage.setItem("lifedrop_sos", JSON.stringify(defaultSosRequests));
+      }
+    }
+
+    function getDonors() {
+      return JSON.parse(localStorage.getItem("lifedrop_donors")) || defaultDonors;
+    }
+
+    function getSosRequests() {
+      return JSON.parse(localStorage.getItem("lifedrop_sos")) || defaultSosRequests;
+    }
+
+    // =========================================================================
+    // ASYNC SUPABASE DATA SYNC & REALTIME
+    // =========================================================================
+    async function syncFromSupabase() {
+      if (!supabaseClient) return;
+
+      // 1. Fetch Donors from Supabase
+      try {
+        const { data: donorsData, error: donorsErr } = await supabaseClient
+          .from('donors')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!donorsErr && donorsData && donorsData.length > 0) {
+          const mappedDonors = donorsData.map(d => ({
+            id: d.id,
+            name: d.name,
+            bloodGroup: d.blood_group,
+            city: d.city ? d.city.toLowerCase() : '',
+            area: d.area || '',
+            phone: d.phone,
+            available: true,
+            distance: 'Verified Donor',
+            lastDonated: d.last_donation_date ? 'Recorded' : 'Eligible'
+          }));
+          localStorage.setItem("lifedrop_donors", JSON.stringify(mappedDonors));
+          renderDonors(mappedDonors);
+          updateStatsCount();
+        }
+      } catch (err) {
+        console.warn("Supabase donors sync:", err);
+      }
+
+      // 2. Fetch SOS Requests from Supabase
+      try {
+        const { data: sosData, error: sosErr } = await supabaseClient
+          .from('sos_requests')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!sosErr && sosData && sosData.length > 0) {
+          const mappedSos = sosData.map(r => ({
+            id: r.id,
+            patientName: r.patient_name,
+            bloodGroup: r.blood_group,
+            units: r.units_needed || 1,
+            hospital: r.hospital,
+            phone: r.phone,
+            urgency: r.urgency || 'Critical (Within 2 hrs)',
+            time: r.created_at ? new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Live'
+          }));
+          localStorage.setItem("lifedrop_sos", JSON.stringify(mappedSos));
+          renderSosRequests();
+        }
+      } catch (err) {
+        console.warn("Supabase SOS sync:", err);
+      }
+
+      // 3. Fetch Blood Banks from Supabase
+      try {
+        const { data: banksData, error: banksErr } = await supabaseClient
+          .from('blood_banks')
+          .select('*')
+          .order('created_at', { ascending: true });
+
+        if (!banksErr && banksData && banksData.length > 0) {
+          const mappedBanks = banksData.map(b => ({
+            name: b.name,
+            city: b.city,
+            address: (b.area ? b.area + ', ' : '') + b.city,
+            phone: b.phone,
+            hours: b.timing || '24/7 Available',
+            stock: b.stock_status || 'High Stock Available',
+            stockClass: (b.stock_status && b.stock_status.toLowerCase().includes('moderate')) ? 'stock-moderate' : 'stock-high'
+          }));
+          renderBanks(mappedBanks);
+        }
+      } catch (err) {
+        console.warn("Supabase blood banks sync:", err);
+      }
+
+      // 4. Update Map Markers with fresh data
+      refreshMapMarkers();
+
+      // 5. Setup Realtime Listener
+      setupSupabaseRealtime();
+    }
+
+    function setupSupabaseRealtime() {
+      if (!supabaseClient) return;
+      try {
+        supabaseClient
+          .channel('public:sos_requests')
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sos_requests' }, payload => {
+            const r = payload.new;
+            const newSosItem = {
+              id: r.id,
+              patientName: r.patient_name,
+              bloodGroup: r.blood_group,
+              units: r.units_needed || 1,
+              hospital: r.hospital,
+              phone: r.phone,
+              urgency: r.urgency || 'Critical (Within 2 hrs)',
+              time: 'Just now'
+            };
+            const currentList = getSosRequests();
+            if (!currentList.some(item => item.id === r.id)) {
+              currentList.unshift(newSosItem);
+              localStorage.setItem("lifedrop_sos", JSON.stringify(currentList));
+              renderSosRequests();
+              refreshMapMarkers();
+              showToast(`🚨 Live Emergency Broadcast: ${r.blood_group} urgently required for ${r.patient_name}!`, 'warning');
+            }
+          })
+          .subscribe();
+      } catch (err) {
+        console.warn("Realtime SOS channel:", err);
+      }
+    }
+
+    // =========================================================================
+    // INTERACTIVE LIVE MAP CONTROLLER (LEAFLET & OPENSTREETMAP)
+    // =========================================================================
+    let liveMap = null;
+    let mapMarkerLayers = {
+      sos: null,
+      bank: null,
+      donor: null
+    };
+    let currentMapFilter = 'all';
+
+    const cityCoordinates = {
+      bangalore: [12.9716, 77.5946],
+      mumbai: [19.0760, 72.8777],
+      delhi: [28.6139, 77.2090],
+      chennai: [13.0827, 80.2707],
+      hyderabad: [17.3850, 78.4867],
+      kolkata: [22.5726, 88.3639],
+      pune: [18.5204, 73.8567],
+      ahmedabad: [23.0225, 72.5714]
+    };
+
+    function initLiveMap() {
+      const mapContainer = document.getElementById("liveMapContainer");
+      if (!mapContainer || liveMap) return;
+
+      try {
+        if (typeof L === 'undefined') {
+          console.warn("Leaflet library not ready yet");
+          return;
+        }
+
+        liveMap = L.map('liveMapContainer', {
+          center: [12.9716, 77.5946],
+          zoom: 12,
+          zoomControl: true,
+          scrollWheelZoom: false
+        });
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: 'abcd',
+          maxZoom: 19
+        }).addTo(liveMap);
+
+        mapMarkerLayers.sos = L.layerGroup().addTo(liveMap);
+        mapMarkerLayers.bank = L.layerGroup().addTo(liveMap);
+        mapMarkerLayers.donor = L.layerGroup().addTo(liveMap);
+
+        refreshMapMarkers();
+
+        setTimeout(() => {
+          if (liveMap) liveMap.invalidateSize();
+        }, 500);
+
+      } catch (err) {
+        console.warn("Leaflet Map init error:", err);
+      }
+    }
+
+    function getCoordinatesForCity(cityStr, offset = 0) {
+      const cityKey = (cityStr || '').toLowerCase().trim();
+      for (const [key, coords] of Object.entries(cityCoordinates)) {
+        if (cityKey.includes(key)) {
+          const latJitter = (Math.sin(offset * 2.3) * 0.032);
+          const lngJitter = (Math.cos(offset * 1.9) * 0.032);
+          return [coords[0] + latJitter, coords[1] + lngJitter];
+        }
+      }
+      return [12.9716 + (offset * 0.009), 77.5946 + (offset * 0.009)];
+    }
+
+    function refreshMapMarkers() {
+      if (!liveMap || !mapMarkerLayers.sos) return;
+
+      mapMarkerLayers.sos.clearLayers();
+      mapMarkerLayers.bank.clearLayers();
+      mapMarkerLayers.donor.clearLayers();
+
+      let sosCount = 0;
+      let bankCount = 0;
+      let donorCount = 0;
+
+      // 1. Plot SOS Markers
+      const sosList = getSosRequests();
+      sosList.forEach((sos, idx) => {
+        const coords = getCoordinatesForCity(sos.hospital || sos.city || 'Bangalore', idx + 1);
+        const sosIcon = L.divIcon({
+          className: 'custom-leaflet-icon',
+          html: `<div class="custom-marker-pin pin-sos"><div class="pin-sos-ripple"></div><i class="fa-solid fa-truck-medical"></i></div>`,
+          iconSize: [36, 36],
+          iconAnchor: [18, 18]
+        });
+
+        const popupContent = `
+          <div class="map-popup-header">
+            <span>🚨 ${sos.patientName}</span>
+            <span class="map-popup-badge" style="background:#dc2626;">${sos.bloodGroup}</span>
+          </div>
+          <div class="map-popup-body">
+            <div><strong>Required:</strong> ${sos.units || 1} Units (${sos.urgency || 'Critical'})</div>
+            <div><strong>Facility:</strong> ${sos.hospital}</div>
+          </div>
+          <div class="map-popup-actions">
+            <a href="tel:${sos.phone}" class="map-popup-btn btn-primary" style="color:white;"><i class="fa-solid fa-phone"></i> Call</a>
+            <a href="https://wa.me/${(sos.phone||'').replace(/[^0-9]/g, '')}?text=Hi,%20I%20am%20responding%20to%20the%20LifeDrop%20SOS%20for%20${encodeURIComponent(sos.patientName)}" target="_blank" class="map-popup-btn btn-whatsapp" style="color:white;"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+          </div>
+        `;
+
+        L.marker(coords, { icon: sosIcon }).bindPopup(popupContent).addTo(mapMarkerLayers.sos);
+        sosCount++;
+      });
+
+      // 2. Plot Blood Banks
+      defaultBanks.forEach((bank, idx) => {
+        const coords = getCoordinatesForCity(bank.city, idx + 10);
+        const bankIcon = L.divIcon({
+          className: 'custom-leaflet-icon',
+          html: `<div class="custom-marker-pin pin-bank"><i class="fa-solid fa-square-h"></i></div>`,
+          iconSize: [34, 34],
+          iconAnchor: [17, 17]
+        });
+
+        const popupContent = `
+          <div class="map-popup-header">
+            <span>🏥 ${bank.name}</span>
+            <span class="map-popup-badge" style="background:#0284c7;">Verified</span>
+          </div>
+          <div class="map-popup-body">
+            <div><strong>Location:</strong> ${bank.address}, ${bank.city}</div>
+            <div><strong>Timing:</strong> ${bank.hours}</div>
+            <div><strong>Stock:</strong> <span style="color:#16a34a; font-weight:700;">${bank.stock}</span></div>
+          </div>
+          <div class="map-popup-actions">
+            <a href="tel:${bank.phone}" class="map-popup-btn btn-outline-red"><i class="fa-solid fa-phone"></i> Call</a>
+            <a href="https://maps.google.com/?q=${encodeURIComponent(bank.name + ' ' + bank.city)}" target="_blank" class="map-popup-btn btn-secondary"><i class="fa-solid fa-diamond-turn-right"></i> Maps</a>
+          </div>
+        `;
+
+        L.marker(coords, { icon: bankIcon }).bindPopup(popupContent).addTo(mapMarkerLayers.bank);
+        bankCount++;
+      });
+
+      // 3. Plot Donors
+      const donorsList = getDonors();
+      donorsList.forEach((donor, idx) => {
+        const coords = getCoordinatesForCity(donor.city, idx + 20);
+        const donorIcon = L.divIcon({
+          className: 'custom-leaflet-icon',
+          html: `<div class="custom-marker-pin pin-donor">${donor.bloodGroup}</div>`,
+          iconSize: [32, 32],
+          iconAnchor: [16, 16]
+        });
+
+        const popupContent = `
+          <div class="map-popup-header">
+            <span>🩸 ${donor.name}</span>
+            <span class="map-popup-badge" style="background:#16a34a;">${donor.bloodGroup}</span>
+          </div>
+          <div class="map-popup-body">
+            <div><strong>Zone:</strong> ${donor.area ? donor.area + ', ' : ''}${donor.city}</div>
+            <div><strong>Status:</strong> <span style="color:#16a34a; font-weight:700;">Available Now</span></div>
+          </div>
+          <div class="map-popup-actions">
+            <a href="tel:${donor.phone}" class="map-popup-btn btn-outline-red"><i class="fa-solid fa-phone"></i> Call</a>
+            <a href="https://wa.me/${(donor.phone||'').replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(donor.name)},%20we%20need%20${encodeURIComponent(donor.bloodGroup)}%20blood%20urgently." target="_blank" class="map-popup-btn btn-whatsapp" style="color:white;"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+          </div>
+        `;
+
+        L.marker(coords, { icon: donorIcon }).bindPopup(popupContent).addTo(mapMarkerLayers.donor);
+        donorCount++;
+      });
+
+      // Update counters
+      const countAll = document.getElementById("countMapAll");
+      const countSos = document.getElementById("countMapSos");
+      const countBanks = document.getElementById("countMapBanks");
+      const countDonors = document.getElementById("countMapDonors");
+
+      if (countAll) countAll.textContent = sosCount + bankCount + donorCount;
+      if (countSos) countSos.textContent = sosCount;
+      if (countBanks) countBanks.textContent = bankCount;
+      if (countDonors) countDonors.textContent = donorCount;
+    }
+
+    function filterMapMarkers(type, btnElement) {
+      currentMapFilter = type;
+      document.querySelectorAll(".map-filter-pills .map-pill-btn").forEach(btn => {
+        btn.classList.remove("active", "sos", "banks", "donors");
+      });
+
+      if (btnElement) {
+        btnElement.classList.add("active");
+        if (type === 'sos') btnElement.classList.add("sos");
+        if (type === 'bank') btnElement.classList.add("banks");
+        if (type === 'donor') btnElement.classList.add("donors");
+      }
+
+      if (!liveMap || !mapMarkerLayers.sos) return;
+
+      if (type === 'all') {
+        liveMap.addLayer(mapMarkerLayers.sos);
+        liveMap.addLayer(mapMarkerLayers.bank);
+        liveMap.addLayer(mapMarkerLayers.donor);
+      } else if (type === 'sos') {
+        liveMap.addLayer(mapMarkerLayers.sos);
+        liveMap.removeLayer(mapMarkerLayers.bank);
+        liveMap.removeLayer(mapMarkerLayers.donor);
+      } else if (type === 'bank') {
+        liveMap.removeLayer(mapMarkerLayers.sos);
+        liveMap.addLayer(mapMarkerLayers.bank);
+        liveMap.removeLayer(mapMarkerLayers.donor);
+      } else if (type === 'donor') {
+        liveMap.removeLayer(mapMarkerLayers.sos);
+        liveMap.removeLayer(mapMarkerLayers.bank);
+        liveMap.addLayer(mapMarkerLayers.donor);
+      }
+    }
+
+    function jumpMapToCity(city) {
+      if (!liveMap) return;
+      const coords = cityCoordinates[city.toLowerCase()];
+      if (coords) {
+        liveMap.flyTo(coords, 12, { animate: true, duration: 1.2 });
+        showToast(`Map centered on ${city.charAt(0).toUpperCase() + city.slice(1)}`, 'info');
+      }
+    }
+
+    function centerMapOnUserGps() {
+      if ("geolocation" in navigator) {
+        showToast("Locating your GPS coordinates...", "info");
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const userLat = pos.coords.latitude;
+            const userLng = pos.coords.longitude;
+            if (liveMap) {
+              liveMap.flyTo([userLat, userLng], 14, { animate: true, duration: 1.5 });
+              L.circleMarker([userLat, userLng], {
+                radius: 9,
+                color: '#dc2626',
+                fillColor: '#ef4444',
+                fillOpacity: 0.8
+              }).bindPopup("<b>📍 Your Current Location</b>").addTo(liveMap).openPopup();
+              showToast("Map centered on your location!", "success");
+            }
+          },
+          (err) => {
+            showToast("Could not access GPS. Centered on Bangalore default.", "warning");
+            if (liveMap) liveMap.flyTo([12.9716, 77.5946], 12);
+          }
+        );
+      } else {
+        showToast("Geolocation is not supported by your browser.", "warning");
+      }
+    }
+
+    // =========================================================================
+    // CUSTOM DROPDOWN CONTROLLER
+    // =========================================================================
+    function toggleDropdown(containerId) {
+      const container = document.getElementById(containerId);
+      const isAlreadyOpen = container.classList.contains("open");
+
+      // Close any other open dropdowns first
+      document.querySelectorAll(".custom-dropdown-container.open").forEach(dd => {
+        if (dd.id !== containerId) dd.classList.remove("open");
+      });
+
+      if (isAlreadyOpen) {
+        container.classList.remove("open");
+      } else {
+        container.classList.add("open");
+      }
+    }
+
+    function selectDropdownOption(containerId, value, labelText, badgeText) {
+      const container = document.getElementById(containerId);
+      const input = container.querySelector("input[type='hidden']");
+      const content = container.querySelector(".dropdown-selected-content");
+
+      if (input) input.value = value;
+
+      if (content) {
+        if (value === "") {
+          content.innerHTML = `<span class="selected-text">${labelText}</span>`;
+        } else {
+          content.innerHTML = `
+            <span class="selected-badge">${badgeText || value}</span>
+            <span class="selected-text">${labelText}</span>
+          `;
+        }
+      }
+
+      // Mark selected item
+      container.querySelectorAll(".dropdown-item").forEach(item => {
+        item.classList.remove("selected");
+      });
+      if (window.event && window.event.currentTarget) {
+        window.event.currentTarget.classList.add("selected");
+      }
+
+      container.classList.remove("open");
+
+      // If this is the main search filter dropdown, trigger search
+      if (containerId === "filterBloodDropdown") {
+        handleSearch();
+      }
+    }
+
+    // Close dropdowns on outside click
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".custom-dropdown-container")) {
+        document.querySelectorAll(".custom-dropdown-container.open").forEach(dd => {
+          dd.classList.remove("open");
+        });
+      }
+    });
+
+    // Custom Urgency Card Radio Selector
+    function selectUrgencyCard(element, urgencyValue) {
+      const parent = element.parentElement;
+      parent.querySelectorAll(".urgency-card-option").forEach(card => card.classList.remove("selected"));
+      element.classList.add("selected");
+      document.getElementById("sosUrgency").value = urgencyValue;
+    }
+
+    // =========================================================================
+    // RENDER FUNCTIONS
+    // =========================================================================
+    function renderDonors(list) {
+      const grid = document.getElementById("donorsGrid");
+      if (!list || list.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-user-slash"></i>
+            <h3>No Donors Found</h3>
+            <p style="color: var(--text-muted); margin-top: 6px;">Try adjusting your blood type filter or searching a nearby city.</p>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = list.map(donor => `
+        <div class="donor-card">
+          <div>
+            <div class="donor-card-top">
+              <div class="donor-profile">
+                <div class="donor-avatar">${donor.bloodGroup}</div>
+                <div>
+                  <div class="donor-name">
+                    ${donor.name}
+                    <i class="fa-solid fa-circle-check donor-verified" title="Verified Voluntary Donor"></i>
+                  </div>
+                  <div class="donor-location">
+                    <i class="fa-solid fa-location-dot"></i>
+                    ${donor.area ? donor.area + ', ' : ''}${donor.city ? (donor.city.charAt(0).toUpperCase() + donor.city.slice(1)) : 'Local Area'}
+                  </div>
+                </div>
+              </div>
+              <div class="blood-badge-lg">${donor.bloodGroup}</div>
+            </div>
+
+            <div class="donor-meta-tags">
+              <span class="meta-tag available"><i class="fa-solid fa-circle" style="font-size:0.55rem; vertical-align: middle;"></i> Available Now</span>
+              <span class="meta-tag"><i class="fa-solid fa-route"></i> ${donor.distance || 'Near you'}</span>
+              <span class="meta-tag"><i class="fa-solid fa-clock-rotate-left"></i> ${donor.lastDonated || 'Eligible'}</span>
+            </div>
+          </div>
+
+          <div class="donor-actions">
+            <a href="tel:${donor.phone}" class="btn-outline-red" style="justify-content: center;">
+              <i class="fa-solid fa-phone"></i> Call
+            </a>
+            <a href="https://wa.me/${donor.phone.replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(donor.name)},%20I%20found%20your%20profile%20on%20LifeDrop.%20We%20urgently%20need%20${encodeURIComponent(donor.bloodGroup)}%20blood." target="_blank" class="btn-whatsapp" style="justify-content: center;">
+              <i class="fa-brands fa-whatsapp"></i> WhatsApp
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderSosRequests() {
+      const grid = document.getElementById("sosGrid");
+      const list = getSosRequests();
+      if (!grid) return;
+
+      grid.innerHTML = list.map(req => {
+        let badgeClass = "sos-badge-standard";
+        let badgeIcon = "fa-clock";
+        if (req.urgency && req.urgency.toLowerCase().includes("critical")) {
+          badgeClass = "sos-badge-critical";
+          badgeIcon = "fa-triangle-exclamation";
+        } else if (req.urgency && req.urgency.toLowerCase().includes("high")) {
+          badgeClass = "sos-badge-high";
+          badgeIcon = "fa-bolt";
+        }
+
+        return `
+          <div class="sos-card">
+            <div class="${badgeClass}">
+              <i class="fa-solid ${badgeIcon}"></i> ${req.urgency ? req.urgency.split(' ')[0] : 'Urgent'}
+            </div>
+            <div class="sos-patient-info">
+              <h4>${req.patientName}</h4>
+              <div class="sos-blood-type">
+                <i class="fa-solid fa-droplet"></i> ${req.bloodGroup} 
+                <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-muted); margin-left: 6px;">(${req.units} Units Required)</span>
+              </div>
+              <div class="sos-details">
+                <div><i class="fa-solid fa-hospital" style="color: var(--primary); margin-right: 5px;"></i> ${req.hospital}</div>
+                <div style="margin-top: 4px;"><i class="fa-solid fa-hourglass-half" style="color: var(--text-muted); margin-right: 5px;"></i> ${req.urgency}</div>
+              </div>
+            </div>
+            <div class="sos-actions">
+              <a href="tel:${req.phone}" class="btn-primary" style="flex: 1; justify-content: center; font-size: 0.88rem; padding: 10px;">
+                <i class="fa-solid fa-phone-volume"></i> Respond / Call
+              </a>
+              <button type="button" onclick="copyToClipboard('${req.phone}', 'Contact number copied!')" class="btn-secondary" style="padding: 10px 14px;" title="Copy Phone">
+                <i class="fa-solid fa-copy"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderBanks(customList) {
+      const grid = document.getElementById("banksGrid");
+      if (!grid) return;
+      const list = customList || defaultBanks;
+
+      grid.innerHTML = list.map(bank => `
+        <div class="bank-card">
+          <div>
+            <div class="bank-title">
+              <i class="fa-solid fa-square-h"></i> ${bank.name}
+            </div>
+            <div class="bank-info-item">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>${bank.address}, ${bank.city}</span>
+            </div>
+            <div class="bank-info-item">
+              <i class="fa-solid fa-clock"></i>
+              <span>${bank.hours}</span>
+            </div>
+            <div class="bank-info-item">
+              <i class="fa-solid fa-phone"></i>
+              <span>${bank.phone}</span>
+            </div>
+            <span class="stock-badge ${bank.stockClass}"><i class="fa-solid fa-circle-check"></i> ${bank.stock}</span>
+          </div>
+
+          <div style="margin-top: 18px; display: flex; gap: 10px;">
+            <a href="tel:${bank.phone}" class="btn-outline-red" style="flex: 1; justify-content: center;">
+              <i class="fa-solid fa-phone"></i> Call Facility
+            </a>
+            <a href="https://maps.google.com/?q=${encodeURIComponent(bank.name + ' ' + bank.city)}" target="_blank" class="btn-secondary" style="justify-content: center; padding: 10px 14px;">
+              <i class="fa-solid fa-diamond-turn-right"></i> Maps
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Search Handlers
+    function handleSearch(e) {
+      if (e) e.preventDefault();
+      const group = document.getElementById("searchGroup").value.trim();
+      const city = document.getElementById("searchLocation").value.trim().toLowerCase();
+
+      let donors = getDonors();
+      let filtered = donors.filter(d => {
+        const matchesGroup = !group || d.bloodGroup.toUpperCase() === group.toUpperCase();
+        const matchesCity = !city || (d.city && d.city.toLowerCase().includes(city)) || (d.area && d.area.toLowerCase().includes(city));
+        return matchesGroup && matchesCity;
+      });
+
+      renderDonors(filtered);
+      showToast(`Showing ${filtered.length} matching donors.`, 'info');
+    }
+
+    function handleHeroSearch(e) {
+      e.preventDefault();
+      const group = document.getElementById("heroBloodGroup").value;
+      const city = document.getElementById("heroCity").value;
+
+      if (!group) {
+        showToast("Please choose a required blood group.", "warning");
+        toggleDropdown("heroBloodDropdown");
+        return;
+      }
+
+      // Sync filter dropdown value
+      selectDropdownOption('filterBloodDropdown', group, group ? `${group} Blood Group` : 'All Blood Groups', group || 'ALL');
+      document.getElementById("searchLocation").value = city;
+
+      const target = document.getElementById("find");
+      target.scrollIntoView({ behavior: "smooth" });
+
+      handleSearch();
+    }
+
+    function quickFilterBlood(group) {
+      selectDropdownOption('filterBloodDropdown', group, group ? `${group} Blood Group` : 'All Blood Groups', group || 'ALL');
+      
+      const chips = document.querySelectorAll(".quick-chips-row .filter-chip");
+      chips.forEach(c => {
+        const text = c.textContent.trim();
+        if ((!group && text === 'All') || (group && text.startsWith(group))) {
+          c.classList.add("active");
+        } else {
+          c.classList.remove("active");
+        }
+      });
+    }
+
+    function useGpsLocation() {
+      const gpsBtn = document.getElementById("gpsBtn");
+      gpsBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Locating...';
+      gpsBtn.disabled = true;
+
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            gpsBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i> GPS Active';
+            gpsBtn.classList.add("btn-primary");
+            gpsBtn.classList.remove("btn-secondary");
+            
+            showToast("GPS position acquired! Showing nearest verified donors within 5 km.", "success");
+            const donors = getDonors();
+            renderDonors(donors);
+            gpsBtn.disabled = false;
+          },
+          (err) => {
+            gpsBtn.innerHTML = '<i class="fa-solid fa-crosshairs"></i> GPS Near Me';
+            gpsBtn.disabled = false;
+            showToast("Could not access GPS. Please enter your city manually in the search box.", "warning");
+          },
+          { timeout: 8000 }
+        );
+      } else {
+        gpsBtn.innerHTML = '<i class="fa-solid fa-crosshairs"></i> GPS Near Me';
+        gpsBtn.disabled = false;
+        showToast("Geolocation is not supported by your browser.", "warning");
+      }
+    }
+
+    // Donor Registration with Supabase Cloud Sync
+    async function handleRegistration(e) {
+      e.preventDefault();
+      const name = document.getElementById("regName").value.trim();
+      const bloodGroup = document.getElementById("regBloodGroup").value;
+      const phone = document.getElementById("regPhone").value.trim();
+      const city = document.getElementById("regCity").value.trim().toLowerCase();
+      const area = document.getElementById("regArea").value.trim();
+      const lastDonation = document.getElementById("regLastDonation").value;
+
+      if (!bloodGroup) {
+        showToast("Please select your blood group.", "warning");
+        toggleDropdown("regBloodDropdown");
+        return;
+      }
+
+      const newDonor = {
+        id: Date.now(),
+        name: name,
+        bloodGroup: bloodGroup,
+        city: city,
+        area: area || "Central Area",
+        phone: phone,
+        available: true,
+        distance: "0.8 km away",
+        lastDonated: lastDonation ? "Recent" : "Eligible"
+      };
+
+      const donors = getDonors();
+      donors.unshift(newDonor);
+      localStorage.setItem("lifedrop_donors", JSON.stringify(donors));
+
+      updateStatsCount();
+      renderDonors(donors);
+      refreshMapMarkers();
+      document.getElementById("registerForm").reset();
+      
+      // Reset custom dropdown trigger
+      const regContent = document.querySelector("#regBloodDropdown .dropdown-selected-content");
+      if (regContent) regContent.innerHTML = '<span class="selected-placeholder">Select Blood Group...</span>';
+      document.getElementById("regBloodGroup").value = "";
+
+      // Async write to Supabase
+      if (supabaseClient) {
+        try {
+          const { error } = await supabaseClient.from('donors').insert([{
+            name: name,
+            blood_group: bloodGroup,
+            phone: phone,
+            city: city,
+            area: area || null,
+            last_donation_date: lastDonation || null,
+            is_verified: true
+          }]);
+          if (error) console.warn("Supabase donor save error:", error);
+          else console.log("✅ Donor synced to Supabase database.");
+        } catch (err) {
+          console.warn("Supabase donor exception:", err);
+        }
+      }
+
+      showToast(`Thank you, ${name}! You are registered as an active donor.`, "success");
+
+      const findSection = document.getElementById("find");
+      findSection.scrollIntoView({ behavior: "smooth" });
+    }
+
+    // SOS Emergency Request with Supabase Cloud Sync
+    function openSosModal() {
+      document.getElementById("sosModal").classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+    function closeSosModal() {
+      document.getElementById("sosModal").classList.remove("active");
+      document.body.style.overflow = "";
+    }
+
+    async function handleSosSubmit(e) {
+      e.preventDefault();
+      const patientName = document.getElementById("sosPatientName").value.trim();
+      const bloodGroup = document.getElementById("sosBloodGroup").value;
+      const units = document.getElementById("sosUnits").value;
+      const hospital = document.getElementById("sosHospital").value.trim();
+      const phone = document.getElementById("sosPhone").value.trim();
+      const urgency = document.getElementById("sosUrgency").value;
+
+      if (!bloodGroup) {
+        showToast("Please choose the required blood group for the emergency.", "warning");
+        toggleDropdown("sosBloodDropdown");
+        return;
+      }
+
+      const newRequest = {
+        id: Date.now(),
+        patientName,
+        bloodGroup,
+        units,
+        hospital,
+        phone,
+        urgency,
+        time: "Just now"
+      };
+
+      const requests = getSosRequests();
+      requests.unshift(newRequest);
+      localStorage.setItem("lifedrop_sos", JSON.stringify(requests));
+
+      renderSosRequests();
+      refreshMapMarkers();
+      closeSosModal();
+      document.getElementById("sosForm").reset();
+
+      // Reset SOS dropdown trigger
+      const sosContent = document.querySelector("#sosBloodDropdown .dropdown-selected-content");
+      if (sosContent) sosContent.innerHTML = '<span class="selected-placeholder">Choose Blood...</span>';
+      document.getElementById("sosBloodGroup").value = "";
+
+      // Async write to Supabase
+      if (supabaseClient) {
+        try {
+          const { error } = await supabaseClient.from('sos_requests').insert([{
+            patient_name: patientName,
+            blood_group: bloodGroup,
+            units_needed: parseInt(units) || 1,
+            hospital: hospital,
+            city: hospital.includes(',') ? hospital.split(',').pop().trim() : 'Local',
+            phone: phone,
+            urgency: urgency,
+            status: 'ACTIVE'
+          }]);
+          if (error) console.warn("Supabase SOS save error:", error);
+          else console.log("✅ Emergency SOS broadcasted to Supabase database.");
+        } catch (err) {
+          console.warn("Supabase SOS exception:", err);
+        }
+      }
+
+      showToast("Emergency request broadcasted to all nearby registered donors!", "success");
+
+      const sosSection = document.getElementById("sos");
+      sosSection.scrollIntoView({ behavior: "smooth" });
+    }
+
+    // Compatibility Checker Logic
+    function selectCompatibility(group) {
+      const buttons = document.querySelectorAll("#compatSelector .blood-chip-btn");
+      buttons.forEach(btn => {
+        if (btn.textContent.trim() === group) btn.classList.add("active");
+        else btn.classList.remove("active");
+      });
+
+      const data = compatibilityMap[group] || { give: [], receive: [] };
+      const giveContainer = document.getElementById("giveToTags");
+      const receiveContainer = document.getElementById("receiveFromTags");
+
+      giveContainer.innerHTML = data.give.map(g => `<span class="compat-tag highlight"><i class="fa-solid fa-droplet" style="color:var(--primary); margin-right:4px;"></i>${g}</span>`).join('');
+      receiveContainer.innerHTML = data.receive.map(r => `<span class="compat-tag"><i class="fa-solid fa-circle-check" style="color:var(--success); margin-right:4px;"></i>${r}</span>`).join('');
+    }
+
+    // Stats Counter
+    function updateStatsCount() {
+      const donors = getDonors();
+      const statElem = document.getElementById("statDonors");
+      if (statElem) {
+        statElem.textContent = `${(3450 + (donors.length - defaultDonors.length)).toLocaleString()}+`;
+      }
+    }
+
+    // Helpers
+    function showToast(message, type = 'info') {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      
+      let icon = 'fa-circle-info';
+      if (type === 'success') icon = 'fa-circle-check';
+      if (type === 'warning') icon = 'fa-triangle-exclamation';
+
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function copyToClipboard(text, successMsg) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(successMsg || "Copied to clipboard!", "success");
+      });
+    }
+
+    // Global Key Listener for Modal
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeSosModal();
+      }
+    });
+
+    // Lifecycle Initialization
+    document.addEventListener("DOMContentLoaded", () => {
+      initData();
+      renderDonors(getDonors());
+      renderSosRequests();
+      renderBanks();
+      selectCompatibility("O+");
+      updateStatsCount();
+
+      // Initialize Live Geospatial Map
+      initLiveMap();
+
+      // Trigger Supabase Cloud Sync
+      syncFromSupabase();
+
+      const mobileBtn = document.getElementById("mobileMenuBtn");
+      const navLinks = document.getElementById("navLinks");
+      if (mobileBtn && navLinks) {
+        mobileBtn.addEventListener("click", () => {
+          navLinks.classList.toggle("show");
+        });
+      }
+
+      // Close modal when clicking outside box
+      const sosModal = document.getElementById("sosModal");
+      if (sosModal) {
+        sosModal.addEventListener("click", (e) => {
+          if (e.target === sosModal) closeSosModal();
+        });
+      }
+    });
+  </script>
+</body>
+</html>
