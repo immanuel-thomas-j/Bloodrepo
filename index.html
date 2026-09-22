@@ -1000,14 +1000,15 @@
     }
     .donor-card {
       background: white;
-      border-radius: var(--radius-md);
-      padding: 24px;
+      border-radius: var(--radius-lg);
+      padding: 22px;
       border: 1px solid var(--border-color);
       box-shadow: var(--shadow-sm);
       transition: var(--transition);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      gap: 16px;
     }
     .donor-card:hover {
       transform: translateY(-4px);
@@ -1017,84 +1018,108 @@
     .donor-card-top {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 16px;
+      align-items: center;
+      gap: 10px;
     }
     .donor-profile {
       display: flex;
-      gap: 14px;
+      gap: 12px;
       align-items: center;
+      min-width: 0;
     }
     .donor-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #fee2e2, #fca5a5);
-      color: #991b1b;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #f8fafc;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 800;
-      font-size: 1.15rem;
-      border: 2px solid white;
-      box-shadow: var(--shadow-sm);
+      font-size: 0.92rem;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
     .donor-name {
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       font-weight: 700;
       color: var(--secondary);
       display: flex;
       align-items: center;
       gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .donor-verified {
       color: #0284c7;
-      font-size: 0.92rem;
+      font-size: 0.88rem;
+      flex-shrink: 0;
     }
     .donor-location {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: var(--text-muted);
       display: flex;
       align-items: center;
       gap: 4px;
       margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .blood-badge-lg {
-      background: #fee2e2;
+      background: linear-gradient(135deg, #fef2f2, #fee2e2);
       color: var(--primary);
       font-weight: 800;
-      font-size: 1.25rem;
-      padding: 6px 14px;
+      font-size: 1.12rem;
+      padding: 6px 13px;
       border-radius: 12px;
       border: 1.5px solid #fecaca;
-      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
+      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
     }
     .donor-meta-tags {
       display: flex;
-      gap: 8px;
-      margin-bottom: 18px;
+      gap: 6px;
       flex-wrap: wrap;
+      align-items: center;
     }
     .meta-tag {
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       font-weight: 700;
       padding: 4px 10px;
       border-radius: 6px;
       background: var(--bg-main);
       color: var(--text-muted);
       border: 1px solid var(--border-color);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
     .meta-tag.available {
       background: #dcfce7;
       color: #15803d;
       border-color: #bbf7d0;
     }
+    .status-pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #16a34a;
+      display: inline-block;
+    }
     .donor-actions {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1.25fr;
       gap: 10px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border-color);
+      padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
     }
     .empty-state {
       grid-column: 1 / -1;
@@ -3202,6 +3227,13 @@
     // =========================================================================
     // RENDER FUNCTIONS
     // =========================================================================
+    function getDonorInitials(name) {
+      if (!name) return "D";
+      const clean = name.replace(/^(Dr\.|Mr\.|Mrs\.|Ms\.)\s*/i, '').trim().split(' ');
+      if (clean.length >= 2) return (clean[0][0] + clean[1][0]).toUpperCase();
+      return clean[0].slice(0, 2).toUpperCase();
+    }
+
     function renderDonors(list) {
       const grid = document.getElementById("donorsGrid");
       if (!list || list.length === 0) {
@@ -3214,43 +3246,57 @@
         return;
       }
 
-      grid.innerHTML = list.map(donor => `
+      grid.innerHTML = list.map(donor => {
+        const initials = getDonorInitials(donor.name);
+        const locationText = (donor.area ? donor.area + ', ' : '') + (donor.city ? (donor.city.charAt(0).toUpperCase() + donor.city.slice(1)) : 'Local Area');
+        
+        return `
         <div class="donor-card">
           <div>
             <div class="donor-card-top">
               <div class="donor-profile">
-                <div class="donor-avatar">${donor.bloodGroup}</div>
+                <div class="donor-avatar" title="${donor.name}">${initials}</div>
                 <div>
                   <div class="donor-name">
-                    ${donor.name}
+                    <span>${donor.name}</span>
                     <i class="fa-solid fa-circle-check donor-verified" title="Verified Voluntary Donor"></i>
                   </div>
                   <div class="donor-location">
-                    <i class="fa-solid fa-location-dot"></i>
-                    ${donor.area ? donor.area + ', ' : ''}${donor.city ? (donor.city.charAt(0).toUpperCase() + donor.city.slice(1)) : 'Local Area'}
+                    <i class="fa-solid fa-location-dot" style="color:var(--primary);"></i>
+                    <span>${locationText}</span>
                   </div>
                 </div>
               </div>
-              <div class="blood-badge-lg">${donor.bloodGroup}</div>
+              <div class="blood-badge-lg">
+                <i class="fa-solid fa-droplet"></i>
+                <span>${donor.bloodGroup}</span>
+              </div>
             </div>
 
             <div class="donor-meta-tags">
-              <span class="meta-tag available"><i class="fa-solid fa-circle" style="font-size:0.55rem; vertical-align: middle;"></i> Available Now</span>
-              <span class="meta-tag"><i class="fa-solid fa-route"></i> ${donor.distance || 'Near you'}</span>
-              <span class="meta-tag"><i class="fa-solid fa-clock-rotate-left"></i> ${donor.lastDonated || 'Eligible'}</span>
+              <span class="meta-tag available">
+                <span class="status-pulse-dot"></span> Available Now
+              </span>
+              <span class="meta-tag">
+                <i class="fa-solid fa-route"></i> ${donor.distance || 'Verified Match'}
+              </span>
+              <span class="meta-tag">
+                <i class="fa-solid fa-shield-halved"></i> Active
+              </span>
             </div>
           </div>
 
           <div class="donor-actions">
-            <a href="tel:${donor.phone}" class="btn-outline-red" style="justify-content: center;">
+            <a href="tel:${donor.phone}" class="btn-outline-red" style="justify-content: center; padding: 10px 14px;">
               <i class="fa-solid fa-phone"></i> Call
             </a>
-            <a href="https://wa.me/${donor.phone.replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(donor.name)},%20I%20found%20your%20profile%20on%20LifeDrop.%20We%20urgently%20need%20${encodeURIComponent(donor.bloodGroup)}%20blood." target="_blank" class="btn-whatsapp" style="justify-content: center;">
+            <a href="https://wa.me/${donor.phone.replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(donor.name)},%20I%20found%20your%20profile%20on%20LifeDrop.%20We%20urgently%20need%20${encodeURIComponent(donor.bloodGroup)}%20blood." target="_blank" class="btn-whatsapp" style="justify-content: center; padding: 10px 14px;">
               <i class="fa-brands fa-whatsapp"></i> WhatsApp
             </a>
           </div>
         </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function renderSosRequests() {
